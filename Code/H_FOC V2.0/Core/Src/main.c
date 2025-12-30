@@ -1,52 +1,142 @@
 #include "main.h"
-#include "adc.h"
 
-// 全局变量：存储编码器数据
-encoder_data_t encoder_data;
+Motor_Control_t motor_ctrl = {
+    .foc_state =  FOC_STATE_INIT,
+    .fault_type = MOTOR_FAULT_NONE,
+    .temp_max = OVER_TEMPERATURE_THRESH,    // 过温阈值
+    .vbus_max = VOLTAGE_LIMIT,              // 过压阈值
+    .vbus_min = UNDER_VOLTAGE_THRESH,       // 欠压阈值
+    .current_max = CURRENT_LIMIT            // 过流阈值
+};
+
 /**
   * @brief  The application entry point.
   * @retval int
   */
 int main(void)
 {
+    // 初始化FOC相关外设
     FOC_Init();
-    debug_log("System Init Success");
     
-    // 设置当前角度为零位
-    encoder_status_t zero_status = encoder_set_zero_temp();
-    // 全部初始化完成后再启用编码器读取中断
-    LL_TIM_EnableIT_CC4(TIM8);
     while(1)
     {
-      debug_log("%.6f",encoder_data.mechanical_angle);
+      /* ------------------ FOC状态机 ------------------ */
+      switch(motor_ctrl.foc_state)
+      {
+        case FOC_STATE_INIT:
+          // 初始化FOC(电机移动至零位)
+          foc_start_init();
+          // 初始化编码器并校零
+          encoder_status_t enc_status = encoder_init();
+          if(enc_status != ENCODER_STATUS_OK)
+          {
+            motor_ctrl.fault_type = FAULT_ENCODER;
+            motor_ctrl.foc_state = FOC_STATE_FAULT;
+          }
+          // 初始化完成后再启用电机中断及编码器读取中断
+          NVIC_EnableIRQ(ADC1_2_IRQn);
+          LL_TIM_EnableIT_CC4(TIM8);
+          motor_ctrl.foc_state = FOC_STATE_RUNNING;
+          break;
 
-      HAL_Delay(2);
+        case FOC_STATE_RUNNING:
+        // 编码器机械角度读取
+        encoder_read_mechanical_angle();
+
+        // 异常状态检测
+        if(foc_voltage_data.vbus > motor_ctrl.vbus_max)
+        {
+          motor_ctrl.fault_type = FAULT_OVER_VOLTAGE;
+          motor_ctrl.foc_state = FOC_STATE_FAULT;
+        }
+        if(foc_voltage_data.vbus < motor_ctrl.vbus_min)
+        {
+          motor_ctrl.fault_type = FAULT_UNDER_VOLTAGE;
+          motor_ctrl.foc_state = FOC_STATE_FAULT;
+        }
+        if(foc_current_data.ia > motor_ctrl.current_max
+        || foc_current_data.ib > motor_ctrl.current_max
+        || foc_current_data.ic > motor_ctrl.current_max)
+        {
+          motor_ctrl.fault_type = FAULT_OVER_CURRENT;
+          motor_ctrl.foc_state = FOC_STATE_FAULT;
+        }
+        if(foc_voltage_data.temp > motor_ctrl.temp_max)
+        {
+          motor_ctrl.fault_type = FAULT_OVER_TEMPERATURE;
+          motor_ctrl.foc_state = FOC_STATE_FAULT;
+        }
+
+        // CAN数据处理
+        // my_FDCAN1_Transmit();
+
+          break;
+
+        case FOC_STATE_FAULT:
+          // 停止PWM输出
+          bsp_pwm_stop();
+          switch(motor_ctrl.fault_type)
+          {
+            case FAULT_OVER_VOLTAGE:
+              debug_log("[ERROR] OVER_VOLTAGE");
+              break;
+              
+            case FAULT_UNDER_VOLTAGE:
+              debug_log("[ERROR] UNDER_VOLTAGE");
+              break;
+              
+            case FAULT_OVER_CURRENT:
+              debug_log("[ERROR] OVER_CURRENT");
+              break;
+              
+            case FAULT_ENCODER:
+              debug_log("[ERROR] ENCODER_ERROR");
+              break;
+              
+            case FAULT_OVER_TEMPERATURE:
+              debug_log("[ERROR] OVER_TEMPERATURE");
+              break;
+              
+            case MOTOR_FAULT_NONE:
+              // 待添加恢复机制
+
+              break;
+            default:
+              debug_log("[ERROR] UNKNOWN_ERROR");
+              break;
+          }
+          motor_ctrl.foc_state = FOC_STATE_STOP;
+          break;
+
+        case FOC_STATE_STOP:
+
+          break;
+
+        default:
+          debug_log("FOC_STATE_ERROR");
+          break;
+      }
+
+      /* --------------- 定时处理任务 --------------- */
+      if(foc_task.task_update_vbus)
+      {
+        foc_task.task_update_vbus = 0;
+        get_foc_bus_voltage();
+      }
+      if(foc_task.task_update_three_phase_voltage)
+      {
+        foc_task.task_update_three_phase_voltage = 0;
+        update_Three_phase_voltage();
+      }
+      if(foc_task.task_update_temperature)
+      {
+        foc_task.task_update_temperature = 0;
+        update_mosfet_temperature();
+      }
+      if(foc_task.task_sys_common)
+      {
+        foc_task.task_sys_common = 0;
+        foc_debug(); // foc打印调试任务
+      }
     }
-}
-
-void TIM8_CC_IRQHandler(void)
-{
-  // 仅处理CH5的比较中断（TRGO2触发源）
-  if (LL_TIM_IsActiveFlag_CC4(TIM8))
-  {
-    // 清除中断标志，上升下降都会触发，所以要在外面清除
-    LL_TIM_ClearFlag_CC4(TIM8);
-    // 检测TIM8计数器方向，仅UP阶段处理
-    if ((TIM8->CR1 & TIM_CR1_DIR) == 0) 
-    {
-      encoder_data.mechanical_angle = encoder_read_mechanical_angle();
-    }
-  }
-  
-}
-
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
-  /* USER CODE END Error_Handler_Debug */
 }

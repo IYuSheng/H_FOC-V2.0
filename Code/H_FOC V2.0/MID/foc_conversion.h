@@ -3,6 +3,7 @@
 
 #include "Config.h"
 #include "adc.h"
+#include "foc_encoder.h"
 #include "arm_math.h"
 
 // 两相静止坐标系结构体 (Alpha-Beta)
@@ -54,9 +55,11 @@ typedef struct
 typedef struct {
    float32_t kp;           // 比例增益
    float32_t ki;           // 积分增益
+   float32_t kd;           // 微分增益
    float32_t integral;     // 积分项
    float32_t integral_limit; // 积分限幅
    float32_t error;        // 当前误差
+   float32_t last_error;   // 上次误差
    float32_t output;       // 输出值
    float32_t target;       // 目标位置
    float32_t current;      // 当前位置
@@ -69,6 +72,13 @@ typedef struct {
 * @return 归一化后电角度（rad，0~2π）
 */
 extern inline float32_t angle_normalize(float32_t angle);
+
+/**
+ * @brief 电角度归一化（映射到0~360范围）
+ * @param angle 输入电角度（°，范围无限制）
+ * @return 归一化后电角度（°，0~360）
+ */
+extern inline float32_t angle_normalize_360(float32_t angle);
 
 /**
 * @brief SVPWM通用扇区判断函数

@@ -20,6 +20,8 @@
 
 #include "foc_encoder.h"
 
+encoder_data_t encoder_data;
+
 static inline void delay_350ns(void) {
     // 基于170MHz CPU：1个__NOP() = 5.88ns，350ns需约60个__NOP()（留冗余）
     __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
@@ -181,7 +183,7 @@ static inline encoder_status_t encoder_write_reg_correct(uint16_t reg_addr, uint
 /* ================================= 全局函数实现 ================================= */
 
 /**
-  * @brief  编码器初始化函数
+  * @brief  编码器初始化函数并校准零点
   * @note   检查编码器通信是否正常，读取诊断寄存器验证连接
   * @param  无
   * @retval encoder_status_t: 初始化状态
@@ -189,14 +191,18 @@ static inline encoder_status_t encoder_write_reg_correct(uint16_t reg_addr, uint
 encoder_status_t encoder_init(void)
 {   
     uint16_t diag = encoder_read_reg_correct(ENCODER_REG_DIAG_AGC);
-    if (diag == 0xFFFF) {
+    if (diag == 0xFFFF)
+    {
         debug_log("[ERROR] read diag failed!");
         return ENCODER_STATUS_ERR_COMM;
     }
     debug_log("AGC: %d", diag & 0xFF);
     debug_log("OCF: %s", (diag & (1 << 8)) ? "success" : "fail");
+
+    // 校零编码器
+    encoder_status_t enc_status = encoder_set_zero_temp();
     
-    return ENCODER_STATUS_OK;
+    return enc_status;
 }
 
 /**
@@ -211,18 +217,97 @@ uint16_t encoder_read_raw_angle(void)
 }
 
 /**
-  * @brief  读取编码器机械角度
-  * @note   将14位原始角度转换为度数（0~360度）
-  * @param  无
-  * @retval float: 机械角度值（度），失败返回-1.0f
+  * @brief  读取编码器累计角度（格式：圈数×360 + 当前角度）
+  * @note   正转：圈数递增，如1圈30°→1×360+30=390；反转：圈数递减，如-1圈30°→-1×360+30=-330
+  * @retval float: 累计角度（圈数×360 + 当前角度）
   */
 float encoder_read_mechanical_angle(void)
 {
-    uint16_t raw_angle = encoder_read_raw_angle();
-    if (raw_angle == 0xFFFF) {
+    static float last_raw = 0;       // 上一次原始角度（0-360°）
+    float delta = encoder_data.angle_raw_scaled - last_raw;
+
+    // 处理角度环绕伪差
+    if (delta > 180) delta -= 360;
+    else if (delta < -180) delta += 360;
+
+    // 累加累计角度 & 更新上次原始角度
+    encoder_data.mechanical_angle += delta * DIRECTION_CW; // 正负跟电机接线相关
+    last_raw = encoder_data.angle_raw_scaled;
+
+    return encoder_data.mechanical_angle;
+}
+
+/**
+  * @brief  读取编码器电角度
+  * @note   将机械角度乘以极对数得到电角度，用于FOC控制中的磁场定向
+  * @param  无
+  * @retval float: 电角度值（度），失败返回-1.0f
+  */
+float encoder_read_electrical_angle(void)
+{
+    encoder_data.raw_angle = encoder_read_raw_angle();
+    if (encoder_data.raw_angle == 0xFFFF) {
         return -1.0f;
     }
-    return (float)raw_angle * ENCODER_ANGLE_SCALE;
+    encoder_data.angle_raw_scaled = (encoder_data.raw_angle * ENCODER_ANGLE_SCALE);
+    // 加负号修正编码器/电机极性反的问题
+    encoder_data.electrical_angle = angle_normalize_360(DIRECTION_CW * encoder_data.angle_raw_scaled * MOTOR_POLE_PAIRS);
+    return encoder_data.electrical_angle;
+}
+
+/**
+  * @brief  读取编码器机械速度
+  * @note   在PWM_FREQhz中断中执行，用于计算机械速度
+  * @param  无
+  * @retval float: 机械速度
+  */
+float encoder_get_mechanical_speed(void)
+{
+    // 静态变量：保持中断执行时的状态（仅初始化一次）
+    static uint32_t count = 0;                // 中断执行计数
+    static float last_angle_raw_scaled = 0.0f;// 上一次的单圈机械角度（0-360°）
+    static uint8_t is_first_run = 1;          // 首次运行标记（避免初始速度异常）
+    static float filtered_speed = 0.0f;       // 滤波后的速度（减少抖动）
+
+    // 1. 计算1ms对应的中断执行次数（如PWM_FREQ=10kHz，则count_threshold=10）
+    const uint32_t count_threshold = (uint32_t)(PWM_FREQ * SPEED_CALC_INTERVAL);
+
+    // 2. 首次运行：初始化上一次角度，速度置0
+    if (is_first_run) {
+        last_angle_raw_scaled = encoder_data.angle_raw_scaled;
+        encoder_data.mechanical_speed = 0.0f;
+        filtered_speed = 0.0f;
+        is_first_run = 0;
+        return 0.0f;
+    }
+
+    // 3. 每1ms计算一次速度（达到计数阈值才计算）
+    count++;
+    if (count >= count_threshold) {
+        // 3.1 计算角度差（处理0-360°环绕伪差）
+        float delta_angle = DIRECTION_CW * (encoder_data.angle_raw_scaled - last_angle_raw_scaled);
+        if (delta_angle > 180.0f) {
+            delta_angle -= 360.0f;  // 正转环绕：359°→1° → 真实差+2°
+        } else if (delta_angle < -180.0f) {
+            delta_angle += 360.0f;  // 反转环绕：1°→359° → 真实差-2°
+        }
+
+        // 3.2 计算机械速度（核心公式：速度=角度差/时间间隔，单位°/s）
+        float raw_speed = delta_angle / SPEED_CALC_INTERVAL;
+
+        // 3.3 低通滤波（减少速度抖动，提升稳定性）
+        filtered_speed = SPEED_FILTER_K * raw_speed + (1 - SPEED_FILTER_K) * filtered_speed;
+
+        // 3.4 更新状态：上一次角度 + 重置计数
+        last_angle_raw_scaled = encoder_data.angle_raw_scaled;
+        count = 0;
+
+        // 3.5 保存到全局变量，供外部调用
+        encoder_data.mechanical_speed = filtered_speed;
+    }
+
+    // 4. 返回最新的机械速度（未到计算周期时返回上一次值）
+    return encoder_data.mechanical_speed;
 }
 
 /**

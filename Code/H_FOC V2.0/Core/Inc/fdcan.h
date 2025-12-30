@@ -29,16 +29,21 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
 extern FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_TxHeaderTypeDef fdcan1TxHeader;
+extern FDCAN_RxHeaderTypeDef fdcan1RxHeader;
+extern uint8_t fdcan1TxData[16];
+extern uint8_t fdcan1RxData[16];
+extern uint8_t fdcan1_RXFlag;
+/* USER CODE END Includes */
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 void MX_FDCAN1_Init(void);
+
+void my_FDCAN1_Transmit(uint8_t *TxData);
 
 /* USER CODE BEGIN Prototypes */
 

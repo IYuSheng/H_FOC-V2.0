@@ -7,18 +7,20 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "FOC_Init.h"
+#include "foc_control.h"
 
-void Error_Handler(void);
-
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
-
-/* USER CODE BEGIN Private defines */
-
-/* USER CODE END Private defines */
+/**
+ * @brief 电机控制结构体
+ */
+typedef struct
+{
+    FOC_STATUS foc_state;        // 当前状态
+    FOC_FAULT  fault_type;       // 当前故障类型
+    float temp_max;              // 最高温度阈值（℃）
+    float vbus_max;              // 母线最高电压阈值（V）
+    float vbus_min;              // 母线最低电压阈值（V）
+    float current_max;           // 最大电流阈值（A）
+} Motor_Control_t;
 
 #ifdef __cplusplus
 }

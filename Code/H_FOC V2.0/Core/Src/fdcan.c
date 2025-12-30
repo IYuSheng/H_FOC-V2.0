@@ -21,7 +21,11 @@
 #include "fdcan.h"
 
 /* USER CODE BEGIN 0 */
-
+FDCAN_TxHeaderTypeDef fdcan1TxHeader;
+FDCAN_RxHeaderTypeDef fdcan1RxHeader;
+uint8_t fdcan1TxData[16] = {0x00};
+uint8_t fdcan1RxData[16] = {0x00};
+uint8_t fdcan1_RXFlag = 0;
 /* USER CODE END 0 */
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -60,7 +64,42 @@ void MX_FDCAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN FDCAN1_Init 2 */
-
+  // 设置接收过滤器
+    FDCAN_FilterTypeDef sFilterConfig;
+    sFilterConfig.IdType = FDCAN_STANDARD_ID;
+    sFilterConfig.FilterIndex = 0;
+    sFilterConfig.FilterType = FDCAN_FILTER_MASK;
+    sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    sFilterConfig.FilterID1 = 0x002; // 设置过滤器ID1
+    sFilterConfig.FilterID2 = 0x7ff; // 设置过滤器ID2
+    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+ 
+ 
+    // 设置发送头
+    fdcan1TxHeader.Identifier = 0x001; // 设置标识符
+    fdcan1TxHeader.IdType = FDCAN_STANDARD_ID; // 设置ID类型
+    fdcan1TxHeader.TxFrameType = FDCAN_DATA_FRAME; // 设置帧类型
+    fdcan1TxHeader.DataLength = FDCAN_DLC_BYTES_8; // 设置数据长度
+    fdcan1TxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE; // 设置错误状态指示符
+    fdcan1TxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 设置比特率切换
+    fdcan1TxHeader.FDFormat = FDCAN_CLASSIC_CAN; // 设置格式
+    fdcan1TxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS; // 设置事件FIFO控制
+    fdcan1TxHeader.MessageMarker = 0; // 设置消息标记器
+ 
+    // 启动 FDCAN1
+    if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    // 启动接收
+    if (HAL_FDCAN_ActivateNotification(&hfdcan1, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    fdcan1_RXFlag = 0; // 初始化接收标志
   /* USER CODE END FDCAN1_Init 2 */
 
 }
@@ -126,5 +165,40 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
 }
 
 /* USER CODE BEGIN 1 */
-
+ 
+void my_FDCAN1_Transmit(uint8_t *TxData)
+{
+    // 发送数据
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &fdcan1TxHeader, TxData) != HAL_OK)
+    {
+        debug_log("HAL_FDCAN_AddMessageToTxFifoQ failed\r\n");
+        Error_Handler();
+    }
+    
+}
+ 
+// FDCAN1 接收回调函数
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+    if ((hfdcan->Instance == FDCAN1) && ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET))
+    {
+        // 从接收 FIFO 中读取数据
+        if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &fdcan1RxHeader, fdcan1RxData) != HAL_OK)
+        {
+            debug_log("HAL_FDCAN_GetRxMessage failed\r\n");
+            Error_Handler();
+        }
+ 
+        // 重启接收 FIFO
+        if (HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
+        {
+            debug_log("HAL_FDCAN_ActivateNotification failed\r\n");
+            Error_Handler();
+        }
+ 
+        // 设置接收标志
+        fdcan1_RXFlag = 1;
+        
+    }
+}
 /* USER CODE END 1 */

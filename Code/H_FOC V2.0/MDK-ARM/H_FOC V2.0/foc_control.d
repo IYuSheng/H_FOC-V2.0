@@ -1,7 +1,7 @@
 h_foc\ v2.0/foc_control.o: ..\APP\foc_control.c ..\APP\foc_control.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h \
-  ..\Drivers\CMSIS\Include\cmsis_armclang.h ..\Core\Inc\tim.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h ..\APP\foc_setting.h \
   ..\Core\Inc\main.h ..\APP\FOC_Init.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
   ..\Core\Inc\stm32g4xx_hal_conf.h \
@@ -45,5 +45,5 @@ h_foc\ v2.0/foc_control.o: ..\APP\foc_control.c ..\APP\foc_control.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h \
   ..\Core\Inc\adc.h ..\Core\Inc\cordic.h ..\Core\Inc\dac.h \
   ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h ..\Core\Inc\spi.h \
-  ..\Core\Inc\usart.h ..\Core\Inc\gpio.h ..\APP\foc_encoder.h \
-  ..\APP\Config.h ..\MID\foc_conversion.h
+  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
+  ..\APP\foc_encoder.h ..\MID\foc_conversion.h ..\APP\Config.h

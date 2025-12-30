@@ -1,6 +1,11 @@
 #include "tim.h"
 #include "stm32g4xx_ll_tim.h"
 #include "Config.h"
+#include "stm32g4xx_ll_rcc.h"
+#include "stm32g4xx_ll_cortex.h"
+
+#define TIM3_PSC    169U        // 预分频器：170MHz/(169+1)=1MHz
+#define TIM3_ARR    999U        // 自动重载值：1MHz/(999+1)=1kHz → 1ms中断
 
 void MX_TIM8_Init(void)
 {
@@ -70,6 +75,8 @@ void MX_TIM8_Init(void)
 
   LL_TIM_CC_EnableChannel(TIM8, LL_TIM_CHANNEL_CH4);
   LL_TIM_ClearFlag_CC4(TIM8);  // 清除CC4初始中断标志
+  LL_TIM_CC_EnableChannel(TIM8, LL_TIM_CHANNEL_CH5); // 显式使能CH5通道（产生OC5REF）
+  LL_TIM_ClearFlag_CC5(TIM8);                        // 清除CH5初始标志
   
   // 2. 启用CC4中断(编码器读取需初始化后，后面再启用)
 //   LL_TIM_EnableIT_CC4(TIM8);
@@ -193,4 +200,36 @@ void bsp_pwm_stop(void)
     LL_TIM_OC_DisablePreload(TIM8, LL_TIM_CHANNEL_CH1);
     LL_TIM_OC_DisablePreload(TIM8, LL_TIM_CHANNEL_CH2);
     LL_TIM_OC_DisablePreload(TIM8, LL_TIM_CHANNEL_CH3);
+}
+
+void MX_TIM3_Init(void)
+{
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+
+  /* 1. 使能TIM3时钟（APB1总线） */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+
+  /* 2. 配置TIM3基础参数 */
+  TIM_InitStruct.Prescaler = TIM3_PSC;                // 预分频器：170MHz/(169+1)=1MHz
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP; // 向上计数模式
+  TIM_InitStruct.Autoreload = TIM3_ARR;               // 自动重载值：1MHz/(999+1)=1kHz → 1ms中断
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM3, &TIM_InitStruct);
+  
+  // 禁用ARR预装载（立即生效）
+  LL_TIM_DisableARRPreload(TIM3);
+  // 设置时钟源为内部时钟
+  LL_TIM_SetClockSource(TIM3, LL_TIM_CLOCKSOURCE_INTERNAL);
+
+  /* 3. 使能TIM3更新中断（溢出中断） */
+  LL_TIM_EnableIT_UPDATE(TIM3);
+  // 清除更新中断标志（避免初始化后立即触发）
+  LL_TIM_ClearFlag_UPDATE(TIM3);
+
+  /* 4. 配置NVIC中断优先级并使能 */
+  NVIC_SetPriority(TIM3_IRQn, 4);
+  NVIC_EnableIRQ(TIM3_IRQn);
+
+  /* 5. 启动TIM3计数器 */
+  LL_TIM_EnableCounter(TIM3);
 }

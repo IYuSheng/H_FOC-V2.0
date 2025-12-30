@@ -31,6 +31,7 @@
 #include "usart.h"
 #include "gpio.h"
 #include "foc_encoder.h"
+#include "foc_sys.h"
 
 void FOC_Init(void);
 

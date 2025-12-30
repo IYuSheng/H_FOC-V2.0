@@ -32,6 +32,7 @@ extern "C" {
  * @brief 初始化定时器
  */
 void MX_TIM8_Init(void);
+void MX_TIM3_Init(void);
 
 /**
  * @brief 初始化PWM输出

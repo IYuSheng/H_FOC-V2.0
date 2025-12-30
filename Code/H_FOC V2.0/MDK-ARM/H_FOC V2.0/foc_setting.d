@@ -1,5 +1,8 @@
-h_foc\ v2.0/foc_init.o: ..\APP\FOC_Init.c ..\APP\FOC_Init.h \
-  ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
+h_foc\ v2.0/foc_setting.o: ..\APP\foc_setting.c ..\APP\foc_setting.h \
+  ..\APP\foc_control.h ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
+  ..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  ..\Drivers\CMSIS\Include\cmsis_armclang.h ..\Core\Inc\main.h \
+  ..\APP\FOC_Init.h ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
   ..\Core\Inc\stm32g4xx_hal_conf.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h \
@@ -39,10 +42,7 @@ h_foc\ v2.0/foc_init.o: ..\APP\FOC_Init.c ..\APP\FOC_Init.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h \
-  ..\Core\Inc\adc.h ..\Core\Inc\main.h ..\APP\foc_control.h \
-  ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
-  ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\APP\foc_setting.h \
-  ..\Core\Inc\tim.h ..\APP\Config.h ..\MID\foc_conversion.h \
-  ..\APP\foc_encoder.h ..\Core\Inc\spi.h ..\Core\Inc\cordic.h \
-  ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
-  ..\Core\Inc\usart.h ..\Core\Inc\gpio.h
+  ..\Core\Inc\adc.h ..\Core\Inc\cordic.h ..\Core\Inc\dac.h \
+  ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h ..\Core\Inc\spi.h \
+  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
+  ..\APP\foc_encoder.h ..\MID\foc_conversion.h ..\APP\Config.h

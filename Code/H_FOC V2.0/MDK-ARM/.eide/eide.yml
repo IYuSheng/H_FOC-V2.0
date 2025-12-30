@@ -94,6 +94,10 @@ virtualFolder:
         - path: ../APP/foc_screen.h
         - path: ../APP/foc_encoder.c
         - path: ../APP/foc_encoder.h
+        - path: ../APP/foc_setting.c
+        - path: ../APP/foc_setting.h
+        - path: ../APP/foc_sys.c
+        - path: ../APP/foc_sys.h
       folders: []
     - name: MID
       files:

@@ -59,26 +59,27 @@ typedef struct
   float32_t temp;  // 温度值
 } foc_data_v;
 
+extern foc_data_t foc_raw_data;
+extern foc_data_v foc_voltage_data;
+extern foc_data_i foc_current_data;
+
 void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
 
 /**
- * @brief 获取原始电流数据
- * @return 原始电流数据结构体指针
+ * @brief 获取母线电压
  */
-foc_data_t* bsp_adc_get_raw_data(void);
+float get_foc_bus_voltage(void);
 
 /**
- * @brief 获取处理后的电流数据
- * @return 处理后的电流数据结构体指针
+ * @brief 更新三相端电压
  */
-foc_data_i* bsp_adc_get_current_data(void);
+void update_Three_phase_voltage(void);
 
 /**
- * @brief 获取ADC2 5通道原始采样值（对外接口）
- * @return 5通道原始值数组指针
+ * @brief 更新MOSFET温度
  */
-uint16_t* bsp_adc2_get_raw_data(void);
+void update_mosfet_temperature(void);
 
 #ifdef __cplusplus
 }

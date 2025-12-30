@@ -856,6 +856,11 @@
           <GroupName>APP</GroupName>
           <Files>
             <File>
+              <FileName>Config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\Config.h</FilePath>
+            </File>
+            <File>
               <FileName>FOC_Init.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\APP\FOC_Init.c</FilePath>
@@ -864,11 +869,6 @@
               <FileName>FOC_Init.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\APP\FOC_Init.h</FilePath>
-            </File>
-            <File>
-              <FileName>Config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\APP\Config.h</FilePath>
             </File>
             <File>
               <FileName>foc_control.c</FileName>
@@ -899,6 +899,26 @@
               <FileName>foc_encoder.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\APP\foc_encoder.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_setting.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\foc_setting.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_setting.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\foc_setting.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_sys.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\foc_sys.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_sys.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\foc_sys.h</FilePath>
             </File>
           </Files>
         </Group>
