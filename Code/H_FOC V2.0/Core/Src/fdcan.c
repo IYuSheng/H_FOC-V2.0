@@ -174,7 +174,31 @@ void my_FDCAN1_Transmit(uint8_t *TxData)
         debug_log("HAL_FDCAN_AddMessageToTxFifoQ failed\r\n");
         Error_Handler();
     }
+}
+
+void FDCAN_SendFloat4Data(float data1, float data2, float data3, float data4)
+{
+    // 将4个浮点数打包到8字节数据中
+    // 每个浮点数占用2字节（使用16位定点表示）
+    // 将浮点数乘以10000再转换为整数，以保留小数点后4位精度
+    int16_t int_data1 = (int16_t)(data1 * 10000);
+    int16_t int_data2 = (int16_t)(data2 * 10000);
+    int16_t int_data3 = (int16_t)(data3 * 10000);
+    int16_t int_data4 = (int16_t)(data4 * 10000);
     
+    uint8_t txData[8];
+    
+    // 将16位整数拆分为8个字节
+    txData[0] = (uint8_t)(int_data1 & 0xFF);
+    txData[1] = (uint8_t)((int_data1 >> 8) & 0xFF);
+    txData[2] = (uint8_t)(int_data2 & 0xFF);
+    txData[3] = (uint8_t)((int_data2 >> 8) & 0xFF);
+    txData[4] = (uint8_t)(int_data3 & 0xFF);
+    txData[5] = (uint8_t)((int_data3 >> 8) & 0xFF);
+    txData[6] = (uint8_t)(int_data4 & 0xFF);
+    txData[7] = (uint8_t)((int_data4 >> 8) & 0xFF);
+    
+    my_FDCAN1_Transmit(txData);
 }
  
 // FDCAN1 接收回调函数

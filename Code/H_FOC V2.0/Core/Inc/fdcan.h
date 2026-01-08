@@ -45,6 +45,8 @@ void MX_FDCAN1_Init(void);
 
 void my_FDCAN1_Transmit(uint8_t *TxData);
 
+void FDCAN_SendFloat4Data(float data1, float data2, float data3, float data4);
+
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */

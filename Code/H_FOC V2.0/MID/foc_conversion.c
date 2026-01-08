@@ -29,6 +29,11 @@ inline float32_t angle_normalize_360(float32_t angle)
     return angle;
 }
 
+inline float deg2rad(float deg)
+{
+    return deg * 0.017453292519943295f;  // π / 180
+}
+
 /**
  * @brief SVPWM通用扇区判断函数
  * @param u_alpha α轴目标电压（V）
@@ -390,28 +395,46 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     position_pid.current = current_position;
     
     // 计算误差（目标 - 当前）
-    
     error = target_position - current_position;
+    if(fabs(error) < 1.0f)
+    {
+        position_pid.kd = POSITION_D_GAIN * fabs(error) / 1.0f;
+    }
+    else
+    {
+        position_pid.kd = POSITION_D_GAIN;
+    }
+
+    position_pid.w_ref = POSITION_KV * error; // 期望速度
     
-    // 计算微分项（使用当前误差与上次误差的差值）
-    d_term = -position_pid.kd * encoder_data.mechanical_speed;
+    if(POSITION_W_MAX < position_pid.w_ref)
+    {
+        position_pid.w_ref = POSITION_W_MAX;
+    }
+    else if(position_pid.w_ref < -POSITION_W_MAX)
+    {
+        position_pid.w_ref = -POSITION_W_MAX;
+    }
     
+    // 计算微分项（速度误差阻尼）
+    d_term = position_pid.kd * (position_pid.w_ref - encoder_data.mechanical_speed);
+
     position_pid.error = error;
-    
+
     // 比例项
     p_term = position_pid.kp * error;
     
-    if(fabs(error) < 5.0f)
+    if(fabs(encoder_data.mechanical_speed) < 2.0f)
     {
-    // 积分项累加
-    position_pid.integral += position_pid.ki * error * POSITION_LOOP_DT;
-    
-    // 积分限幅
-    if (position_pid.integral > position_pid.integral_limit) {
-        position_pid.integral = position_pid.integral_limit;
-    } else if (position_pid.integral < -position_pid.integral_limit) {
-        position_pid.integral = -position_pid.integral_limit;
-    }
+        // 积分项累加
+        position_pid.integral += position_pid.ki * error * POSITION_LOOP_DT;
+        
+        // 积分限幅
+        if (position_pid.integral > position_pid.integral_limit) {
+            position_pid.integral = position_pid.integral_limit;
+        } else if (position_pid.integral < -position_pid.integral_limit) {
+            position_pid.integral = -position_pid.integral_limit;
+        }
     }
 
     // 更新上次误差，用于下次计算微分项
@@ -426,7 +449,6 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     else if(position_pid.output < -POSITION_OUT_LIMIT)
     {
         position_pid.output = -POSITION_OUT_LIMIT;
-
     }
     
     return position_pid.output;

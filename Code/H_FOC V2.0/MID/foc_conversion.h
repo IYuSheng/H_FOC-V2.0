@@ -51,7 +51,7 @@ typedef struct
  }abc_dq;  // 经采集变换后的实际dq轴电流
 } foc_control_t;
 
-// PI控制器结构体
+// PID控制器结构体
 typedef struct {
    float32_t kp;           // 比例增益
    float32_t ki;           // 积分增益
@@ -63,7 +63,10 @@ typedef struct {
    float32_t output;       // 输出值
    float32_t target;       // 目标位置
    float32_t current;      // 当前位置
+   float32_t w_ref;        // 期望速度
 } pi_t;
+
+extern pi_t position_pid;
 
 // FOC变换相关函数声明
 /**
@@ -79,6 +82,8 @@ extern inline float32_t angle_normalize(float32_t angle);
  * @return 归一化后电角度（°，0~360）
  */
 extern inline float32_t angle_normalize_360(float32_t angle);
+
+extern inline float deg2rad(float deg);
 
 /**
 * @brief SVPWM通用扇区判断函数

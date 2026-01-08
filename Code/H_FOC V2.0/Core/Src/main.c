@@ -24,10 +24,9 @@ int main(void)
       switch(motor_ctrl.foc_state)
       {
         case FOC_STATE_INIT:
-          // 初始化FOC(电机移动至零位)
-          foc_start_init();
           // 初始化编码器并校零
           encoder_status_t enc_status = encoder_init();
+          foc_start_init();
           if(enc_status != ENCODER_STATUS_OK)
           {
             motor_ctrl.fault_type = FAULT_ENCODER;
@@ -40,32 +39,11 @@ int main(void)
           break;
 
         case FOC_STATE_RUNNING:
-        // 编码器机械角度读取
-        encoder_read_mechanical_angle();
+        // // 编码器机械角度读取
+        // encoder_read_mechanical_angle();
 
-        // 异常状态检测
-        if(foc_voltage_data.vbus > motor_ctrl.vbus_max)
-        {
-          motor_ctrl.fault_type = FAULT_OVER_VOLTAGE;
-          motor_ctrl.foc_state = FOC_STATE_FAULT;
-        }
-        if(foc_voltage_data.vbus < motor_ctrl.vbus_min)
-        {
-          motor_ctrl.fault_type = FAULT_UNDER_VOLTAGE;
-          motor_ctrl.foc_state = FOC_STATE_FAULT;
-        }
-        if(foc_current_data.ia > motor_ctrl.current_max
-        || foc_current_data.ib > motor_ctrl.current_max
-        || foc_current_data.ic > motor_ctrl.current_max)
-        {
-          motor_ctrl.fault_type = FAULT_OVER_CURRENT;
-          motor_ctrl.foc_state = FOC_STATE_FAULT;
-        }
-        if(foc_voltage_data.temp > motor_ctrl.temp_max)
-        {
-          motor_ctrl.fault_type = FAULT_OVER_TEMPERATURE;
-          motor_ctrl.foc_state = FOC_STATE_FAULT;
-        }
+        // 设置控制参数
+        foc_control_set();
 
         // CAN数据处理
         // my_FDCAN1_Transmit();
@@ -109,11 +87,11 @@ int main(void)
           break;
 
         case FOC_STATE_STOP:
+          debug_log("[ERROR]");
 
           break;
 
         default:
-          debug_log("FOC_STATE_ERROR");
           break;
       }
 
@@ -136,7 +114,36 @@ int main(void)
       if(foc_task.task_sys_common)
       {
         foc_task.task_sys_common = 0;
-        foc_debug(); // foc打印调试任务
+        // foc打印调试任务
+        foc_debug();
+      }
+
+      /* --------------- 异常状态检测 --------------- */
+      if(foc_voltage_data.vbus > motor_ctrl.vbus_max)
+      {
+        motor_ctrl.fault_type = FAULT_OVER_VOLTAGE;
+        if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+        motor_ctrl.foc_state = FOC_STATE_FAULT;
+      }
+      if(foc_voltage_data.vbus < motor_ctrl.vbus_min)
+      {
+        motor_ctrl.fault_type = FAULT_UNDER_VOLTAGE;
+        if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+        motor_ctrl.foc_state = FOC_STATE_FAULT;
+      }
+      if(foc_current_data.ia > motor_ctrl.current_max
+      || foc_current_data.ib > motor_ctrl.current_max
+      || foc_current_data.ic > motor_ctrl.current_max)
+      {
+        motor_ctrl.fault_type = FAULT_OVER_CURRENT;
+        if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+        motor_ctrl.foc_state = FOC_STATE_FAULT;
+      }
+      if(foc_voltage_data.temp > motor_ctrl.temp_max)
+      {
+        motor_ctrl.fault_type = FAULT_OVER_TEMPERATURE;
+        if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+        motor_ctrl.foc_state = FOC_STATE_FAULT;
       }
     }
 }

@@ -22,10 +22,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include "foc_prase.h"
 
-#define UART_TX_BUFFER_SIZE 256
+#define UART_TX_BUFFER_SIZE 512
+#define UART_RX_BUFFER_SIZE 64
 
 static char d_buffer[UART_TX_BUFFER_SIZE];
+static char rx_buffer[UART_RX_BUFFER_SIZE];
+static volatile uint8_t rx_index = 0;
+static volatile uint8_t rx_complete = 0;
+
+// 声明一个回调函数指针，用于处理接收到的数据
+void (*uart_receive_callback)(char* data, uint8_t len) = NULL;
 
 void MX_USART3_UART_Init(void)
 {
@@ -50,17 +58,17 @@ void MX_USART3_UART_Init(void)
   */
   GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_7;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   GPIO_InitStruct.Pin = LL_GPIO_PIN_11;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_7;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -72,11 +80,11 @@ void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   USART_InitStruct.PrescalerValue = LL_USART_PRESCALER_DIV1;
-  USART_InitStruct.BaudRate = 2000000;
+  USART_InitStruct.BaudRate = 500000;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX;
+  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
   USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
   USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
   LL_USART_Init(USART3, &USART_InitStruct);
@@ -95,6 +103,14 @@ void MX_USART3_UART_Init(void)
   while(!(LL_USART_IsActiveFlag_TEACK(USART3)))
   {
   }
+
+  // 设置中断优先级
+  NVIC_SetPriority(USART3_IRQn, 4); // 使用较低的优先级值
+  NVIC_EnableIRQ(USART3_IRQn);
+
+  // 使能接收中断
+  LL_USART_EnableIT_RXNE(USART3);
+  LL_USART_EnableIT_ERROR(USART3);
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
@@ -133,7 +149,7 @@ void bsp_uart_send_string(char *str)
  * @param buffer 数据缓冲区
  * @param len 数据长度
  */
-static void bsp_uart_send_buffer(uint8_t *buffer, uint16_t len)
+static inline void bsp_uart_send_buffer(uint8_t *buffer, uint16_t len)
 {
   uint16_t i;
   for (i = 0; i < len; i++)
@@ -174,5 +190,63 @@ void debug_log(const char *format, ...)
   if (len > 0)
     {
       bsp_uart_send_buffer((uint8_t*)d_buffer, (uint16_t)len);
+    }
+}
+
+/**
+ * @brief 串口3中断处理函数
+ */
+void USART3_IRQHandler(void)
+{
+    // 检查是否是接收中断
+    if (LL_USART_IsActiveFlag_RXNE(USART3))
+    {
+        // 读取接收数据
+        char received_char = LL_USART_ReceiveData8(USART3);
+        
+        if (received_char == '\n')
+        {
+            if (rx_index > 0) // 如果有数据
+            {
+                // 添加字符串结束符
+                rx_buffer[rx_index] = '\0';
+                
+                // 解析接收到的数据
+                parse_received_data(rx_buffer, rx_index);
+                
+                // 重置接收索引
+                rx_index = 0;
+            }
+        }
+        else
+        {
+            // 将数据存入缓冲区
+            if (rx_index < (UART_RX_BUFFER_SIZE - 1))
+            {
+                rx_buffer[rx_index++] = received_char;
+            }
+            else
+            {
+                // 缓冲区满，重置
+                rx_index = 0;
+            }
+        }
+    }
+    // 检查错误标志
+    else if (LL_USART_IsActiveFlag_PE(USART3) || 
+             LL_USART_IsActiveFlag_FE(USART3) || 
+             LL_USART_IsActiveFlag_NE(USART3) || 
+             LL_USART_IsActiveFlag_ORE(USART3))
+    {
+        // 清除错误标志
+        if (LL_USART_IsEnabledIT_PE(USART3)) LL_USART_ClearFlag_PE(USART3);
+        if (LL_USART_IsEnabledIT_ERROR(USART3)) LL_USART_ClearFlag_FE(USART3);
+        if (LL_USART_IsEnabledIT_ERROR(USART3)) LL_USART_ClearFlag_NE(USART3);
+        if (LL_USART_IsEnabledIT_ERROR(USART3)) LL_USART_ClearFlag_ORE(USART3);
+
+        debug_log("UART Error!");
+        
+        // 重置接收
+        rx_index = 0;
     }
 }

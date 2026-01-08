@@ -68,8 +68,10 @@ void TIM8_CC_IRQHandler(void)
     {
       // 读取编码器电角度
       encoder_read_electrical_angle();
-      // 更新电机转速
-      encoder_get_mechanical_speed();
+      // 编码器机械角度读取及更新机械转速
+      encoder_read_mechanical_angle();
+      // 更新电机转速(被降阶龙伯格观测器替代)
+      // encoder_get_mechanical_speed();
     }
   }
 }

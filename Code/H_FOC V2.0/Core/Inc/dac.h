@@ -38,6 +38,20 @@ extern "C" {
 
 void MX_DAC1_Init(void);
 
+/**
+  * @brief  设置DAC通道1输出电压
+  * @param  voltage: 期望输出电压值 (0-3.3V)
+  * @retval None
+  */
+void set_dac_channel1_voltage(float voltage);
+
+/**
+  * @brief  设置DAC通道2输出电压
+  * @param  voltage: 期望输出电压值 (0-3.3V)
+  * @retval None
+  */
+void set_dac_channel2_voltage(float voltage);
+
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */

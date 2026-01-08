@@ -103,6 +103,8 @@ virtualFolder:
       files:
         - path: ../MID/foc_conversion.c
         - path: ../MID/foc_conversion.h
+        - path: ../MID/foc_prase.c
+        - path: ../MID/foc_prase.h
       folders: []
     - name: ::CMSIS
       files: []

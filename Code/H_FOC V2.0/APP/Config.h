@@ -13,11 +13,13 @@
 #define OVER_TEMPERATURE_THRESH 80.0f   // 过温保护阈值 (摄氏度)
 
 // -------------------------- 电机参数 (根据实际电机填写) -------------------------- 
-#define MOTOR_POLE_PAIRS    11       // 电机极对数
-#define MOTOR_RESISTANCE    0.36f    // 相电阻 (欧姆)
-#define MOTOR_INDUCTANCE    0.000154f  // 相电感 (H)
+#define MOTOR_POLE_PAIRS     11       // 电机极对数
+#define MOTOR_RESISTANCE     0.36f    // 相电阻 (欧姆)
+#define MOTOR_INDUCTANCE     0.000154f  // 相电感 (H)
 #define MOTOR_INDUCTANCE_Lq  0.000154f // q轴电感 (H)
 #define MOTOR_INDUCTANCE_Ld  0.000154f // d轴电感 (H)
+
+#define MOTOR_LOW             -20.0f * PI / 180.0f   // 电机最低位置
 
 // -------------------------- FOC控制参数 --------------------------
 #define PWM_FREQ            20000.0f   // PWM频率 (Hz)，需与定时器配置匹配
@@ -32,27 +34,29 @@
 #define CURRENT_LOOP_DT           1.0f / CURRENT_LOOP_COUNT  // 电流环调用周期 (单位：s)
 #define I_D_P_GAIN                1.2f
 #define I_Q_P_GAIN                1.2f
-#define I_I_GAIN                  3600.0f
+#define I_I_GAIN                  2400.0f
 #define I_I_LIMIT                 7.0f
 
 // 速度环PI
-#define SPEED_LOOP_TIME     200.0f
-#define SPEED_LOOP_COUNT    PWM_FREQ / SPEED_LOOP_TIME  // 速度环调用频率 (200Hz)
+#define SPEED_LOOP_TIME     1000.0f
+#define SPEED_LOOP_COUNT    PWM_FREQ / SPEED_LOOP_TIME  // 速度环调用频率 (1000Hz)
 #define SPEED_LOOP_DT       1.0f / SPEED_LOOP_TIME      // 速度环调用周期 (单位：s)
-#define SPEED_P_GAIN        0.002f
+#define SPEED_P_GAIN        0.0005f
 #define SPEED_I_GAIN        0.000f
 #define SPEED_I_LIMIT       0.2f
-#define SPEED_OUT_LIMIT     0.3f
+#define SPEED_OUT_LIMIT     1.0f
 
 // 位置环PID
-#define POSITION_LOOP_TIME   200.0f  // 位置环调用频率 (200Hz)
-#define POSITION_LOOP_COUNT  PWM_FREQ / POSITION_LOOP_TIME  // 位置环调用频率 (200Hz)
+#define POSITION_LOOP_TIME   1000.0f  // 位置环调用频率 (1000Hz)
+#define POSITION_LOOP_COUNT  PWM_FREQ / POSITION_LOOP_TIME  // 位置环调用频率 (1000Hz)
 #define POSITION_LOOP_DT    1.0f / POSITION_LOOP_TIME // 位置环调用周期 (单位：s)
-#define POSITION_P_GAIN     0.06f
-#define POSITION_I_GAIN     0.1f
-#define POSITION_D_GAIN     0.001f
-#define POSITION_I_LIMIT    0.15f
-#define POSITION_OUT_LIMIT  0.25f
+#define POSITION_P_GAIN     0.12f
+#define POSITION_I_GAIN     1.0f
+#define POSITION_D_GAIN     0.005f
+#define POSITION_I_LIMIT    0.5f
+#define POSITION_OUT_LIMIT  4.0f
+#define POSITION_KV         8.0f
+#define POSITION_W_MAX      600.0f
 
 // -------------------------- 电流采样配置 --------------------------
 #define ADC_REF_VOLTAGE     3.3f    // ADC参考电压 (V)

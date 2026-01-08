@@ -955,6 +955,16 @@
               <FileType>5</FileType>
               <FilePath>..\MID\foc_communication.h</FilePath>
             </File>
+            <File>
+              <FileName>foc_prase.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MID\foc_prase.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_prase.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MID\foc_prase.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

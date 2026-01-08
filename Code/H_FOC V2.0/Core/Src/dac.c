@@ -20,6 +20,54 @@
 /* Includes ------------------------------------------------------------------*/
 #include "dac.h"
 
+// 定义DAC参考电压和分辨率
+#define VREF 3.3f      // 参考电压3.3V
+#define DAC_RES 4095.0f // 12位DAC的最大值
+
+/**
+  * @brief  设置DAC通道1输出电压
+  * @param  voltage: 期望输出电压值 (0-3.3V)
+  * @retval None
+  */
+void set_dac_channel1_voltage(float voltage)
+{
+    uint32_t dac_value;
+    
+    // 限制电压范围在0到3.3V之间
+    if(voltage > VREF) voltage = VREF;
+    if(voltage < 0) voltage = 0;
+    
+    // 计算对应的DAC数值
+    dac_value = (uint32_t)((voltage / VREF) * DAC_RES);
+    
+    // 设置DAC输出
+    LL_DAC_ConvertData12RightAligned(DAC1, LL_DAC_CHANNEL_1, dac_value);
+    LL_DAC_EnableTrigger(DAC1, LL_DAC_CHANNEL_1);
+    LL_DAC_TrigSWConversion(DAC1, LL_DAC_CHANNEL_1);
+}
+
+/**
+  * @brief  设置DAC通道2输出电压
+  * @param  voltage: 期望输出电压值 (0-3.3V)
+  * @retval None
+  */
+void set_dac_channel2_voltage(float voltage)
+{
+    uint32_t dac_value;
+    
+    // 限制电压范围在0到3.3V之间
+    if(voltage > VREF) voltage = VREF;
+    if(voltage < 0) voltage = 0;
+    
+    // 计算对应的DAC数值
+    dac_value = (uint32_t)((voltage / VREF) * DAC_RES);
+    
+    // 设置DAC输出
+    LL_DAC_ConvertData12RightAligned(DAC1, LL_DAC_CHANNEL_2, dac_value);
+    LL_DAC_EnableTrigger(DAC1, LL_DAC_CHANNEL_2);
+    LL_DAC_TrigSWConversion(DAC1, LL_DAC_CHANNEL_2);
+}
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -77,6 +125,9 @@ void MX_DAC1_Init(void)
   LL_DAC_Init(DAC1, LL_DAC_CHANNEL_2, &DAC_InitStruct);
   LL_DAC_DisableTrigger(DAC1, LL_DAC_CHANNEL_2);
   LL_DAC_DisableDMADoubleDataMode(DAC1, LL_DAC_CHANNEL_2);
+
+  LL_DAC_Enable(DAC1, LL_DAC_CHANNEL_1);
+  LL_DAC_Enable(DAC1, LL_DAC_CHANNEL_2);
   /* USER CODE BEGIN DAC1_Init 2 */
 
   /* USER CODE END DAC1_Init 2 */

@@ -182,6 +182,43 @@ static inline encoder_status_t encoder_write_reg_correct(uint16_t reg_addr, uint
 
 /* ================================= 全局函数实现 ================================= */
 
+pos_luenberger_t g_pos_obs = {0};
+
+static inline void pos_obs_reset(float theta_meas_deg)
+{
+    g_pos_obs.theta_hat = theta_meas_deg;
+    g_pos_obs.omega_hat = 0.0f;
+    g_pos_obs.inited = 1;
+}
+
+// 50Hz 观测器带宽（你指定）
+#define POS_OBS_BW_HZ  (50.0f)
+
+// 由带宽生成增益（工程上常用的“二阶临界阻尼”形式）
+// 连续极点放在 s = -omega_obs (重复极点)，离散近似：
+// L1 ≈ 2*omega*dt, L2 ≈ omega^2*dt
+static inline void pos_obs_update(float theta_meas_deg, float dt)
+{
+    if (!g_pos_obs.inited) {
+        pos_obs_reset(theta_meas_deg);
+        return;
+    }
+
+    const float omega = 2.0f * _PI * POS_OBS_BW_HZ; // rad/s（只是用于算增益）
+    const float L1 = 2.0f * omega * dt;              // 无量纲
+    const float L2 = (omega * omega) * dt;           // 1/s
+
+    // 1) 预测（先用模型走一步）
+    const float theta_pred = g_pos_obs.theta_hat + g_pos_obs.omega_hat * dt;
+
+    // 2) 创新/残差（角度误差）
+    const float e = theta_meas_deg - theta_pred;
+
+    // 3) 校正
+    g_pos_obs.theta_hat = theta_pred + L1 * e;
+    g_pos_obs.omega_hat = g_pos_obs.omega_hat + L2 * e;
+}
+
 /**
   * @brief  编码器初始化函数并校准零点
   * @note   检查编码器通信是否正常，读取诊断寄存器验证连接
@@ -189,7 +226,7 @@ static inline encoder_status_t encoder_write_reg_correct(uint16_t reg_addr, uint
   * @retval encoder_status_t: 初始化状态
   */
 encoder_status_t encoder_init(void)
-{   
+{
     uint16_t diag = encoder_read_reg_correct(ENCODER_REG_DIAG_AGC);
     if (diag == 0xFFFF)
     {
@@ -200,7 +237,8 @@ encoder_status_t encoder_init(void)
     debug_log("OCF: %s", (diag & (1 << 8)) ? "success" : "fail");
 
     // 校零编码器
-    encoder_status_t enc_status = encoder_set_zero_temp();
+    encoder_status_t enc_status;
+    // enc_status = encoder_set_zero_temp();
     
     return enc_status;
 }
@@ -223,7 +261,7 @@ uint16_t encoder_read_raw_angle(void)
   */
 float encoder_read_mechanical_angle(void)
 {
-    static float last_raw = 0;       // 上一次原始角度（0-360°）
+    static float last_raw = 0;
     float delta = encoder_data.angle_raw_scaled - last_raw;
 
     // 处理角度环绕伪差
@@ -231,8 +269,11 @@ float encoder_read_mechanical_angle(void)
     else if (delta < -180) delta += 360;
 
     // 累加累计角度 & 更新上次原始角度
-    encoder_data.mechanical_angle += delta * DIRECTION_CW; // 正负跟电机接线相关
+    encoder_data.mechanical_angle -= delta; // 正负跟电机接线相关
     last_raw = encoder_data.angle_raw_scaled;
+
+    pos_obs_update(encoder_data.mechanical_angle, PWM_PERIOD_S);
+    encoder_data.mechanical_speed = g_pos_obs.omega_hat;
 
     return encoder_data.mechanical_angle;
 }
@@ -249,7 +290,7 @@ float encoder_read_electrical_angle(void)
     if (encoder_data.raw_angle == 0xFFFF) {
         return -1.0f;
     }
-    encoder_data.angle_raw_scaled = (encoder_data.raw_angle * ENCODER_ANGLE_SCALE);
+    encoder_data.angle_raw_scaled = (encoder_data.raw_angle * ENCODER_ANGLE_SCALE - ENCODER_ZERO);
     // 加负号修正编码器/电机极性反的问题
     encoder_data.electrical_angle = angle_normalize_360(DIRECTION_CW * encoder_data.angle_raw_scaled * MOTOR_POLE_PAIRS);
     return encoder_data.electrical_angle;
@@ -285,7 +326,7 @@ float encoder_get_mechanical_speed(void)
     count++;
     if (count >= count_threshold) {
         // 3.1 计算角度差（处理0-360°环绕伪差）
-        float delta_angle = DIRECTION_CW * (encoder_data.angle_raw_scaled - last_angle_raw_scaled);
+        float delta_angle = (last_angle_raw_scaled - encoder_data.angle_raw_scaled);
         if (delta_angle > 180.0f) {
             delta_angle -= 360.0f;  // 正转环绕：359°→1° → 真实差+2°
         } else if (delta_angle < -180.0f) {

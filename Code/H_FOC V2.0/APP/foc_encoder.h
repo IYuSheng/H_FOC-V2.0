@@ -22,6 +22,7 @@
 #define FOC_ENCODER_H
 
 #include "spi.h"
+#include <math.h>
 #include "stm32g4xx_ll_gpio.h"
 #include "stm32g4xx_ll_bus.h"
 #include "foc_conversion.h"
@@ -55,9 +56,10 @@
 #define ENCODER_MAX_VALUE      ((1 << ENCODER_RESOLUTION) - 1)  // 最大原始值：16384
 #define ENCODER_ANGLE_SCALE    (360.0f / ENCODER_MAX_VALUE)  // 角度缩放因子（°/LSB）
 #define ENCODER_ELECTRICAL_SCALE (ENCODER_ANGLE_SCALE * MOTOR_POLE_PAIRS)
-#define SPEED_CALC_INTERVAL    0.001f      // 速度计算间隔（1ms，单位：秒）
-#define SPEED_FILTER_K         0.03f        // 速度低通滤波系数（0~1，越小越平滑）
-#define DIRECTION_CW           -1   //电机方向
+#define SPEED_CALC_INTERVAL    0.001f       // 速度计算间隔（1ms，单位：秒）
+#define SPEED_FILTER_K         0.2f        // 速度低通滤波系数（0~1，越小越平滑）
+#define DIRECTION_CW           1            //电机方向
+#define ENCODER_ZERO           25.9513f       //编码器零位（单位：度）
 /* ================================= 数据类型定义 ================================= */
 // 编码器状态枚举
 typedef enum {
@@ -78,7 +80,21 @@ typedef struct {
     uint8_t  agc_value;           // AGC 值（反映磁场强度：0=强，255=弱）
 } encoder_data_t;
 
+// ================= 机械侧降阶隆博戈(二阶)观测器 =================
+// 模型： theta_dot = omega, omega_dot = 0
+// 观测器：
+//  theta_hat(k+1) = theta_hat(k) + omega_hat(k)*dt + L1*e
+//  omega_hat(k+1) = omega_hat(k) + L2*e
+//  e = theta_meas - (theta_hat(k) + omega_hat(k)*dt)
+
+typedef struct {
+    float theta_hat;   // 内部角度估计(单位: deg)，仅用于观测器
+    float omega_hat;   // 估计速度(单位: deg/s)，给控制用
+    uint8_t inited;
+} pos_luenberger_t;
+
 extern encoder_data_t encoder_data;
+extern pos_luenberger_t g_pos_obs;
 
 /* ================================= 函数声明 ================================= */
 /**
