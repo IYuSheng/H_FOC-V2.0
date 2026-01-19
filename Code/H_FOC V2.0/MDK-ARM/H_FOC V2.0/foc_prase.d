@@ -1,5 +1,5 @@
-h_foc\ v2.0/usart.o: ..\Core\Src\usart.c ..\Core\Inc\usart.h \
-  ..\Core\Inc\main.h ..\APP\FOC_Init.h \
+h_foc\ v2.0/foc_prase.o: ..\MID\foc_prase.c ..\MID\foc_prase.h \
+  ..\Core\Inc\usart.h ..\Core\Inc\main.h ..\APP\FOC_Init.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h \
   ..\Core\Inc\stm32g4xx_hal_conf.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h \
@@ -45,5 +45,4 @@ h_foc\ v2.0/usart.o: ..\Core\Src\usart.c ..\Core\Inc\usart.h \
   ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
   ..\Core\Inc\spi.h ..\Core\Inc\tim.h ..\Core\Inc\gpio.h \
   ..\APP\foc_encoder.h ..\MID\foc_conversion.h ..\APP\Config.h \
-  ..\APP\foc_sys.h ..\APP\foc_control.h ..\APP\foc_setting.h \
-  ..\MID\foc_prase.h
+  ..\APP\foc_sys.h ..\APP\foc_control.h ..\APP\foc_setting.h

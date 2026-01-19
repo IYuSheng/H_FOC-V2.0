@@ -355,7 +355,7 @@ inline float32_t foc_iq_pid_calculate(float32_t target_iq, float32_t actual_iq)
 inline float32_t foc_speed_pid_calculate(float32_t target_speed, float32_t actual_speed)
 {
     float32_t error = (target_speed - actual_speed);
-    if(fabs(error) < 3.0) error = 0;
+
     float32_t p_term = speed_pid.kp * error;
     
     // 积分项计算与限幅

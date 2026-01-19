@@ -45,9 +45,11 @@
 "h_foc v2.0\foc_screen.o"
 "h_foc v2.0\foc_encoder.o"
 "h_foc v2.0\foc_setting.o"
+"h_foc v2.0\foc_sys.o"
 "h_foc v2.0\foc_conversion.o"
 "h_foc v2.0\foc_sensorless.o"
 "h_foc v2.0\foc_communication.o"
+"h_foc v2.0\foc_prase.o"
 --library_type=microlib --strict --scatter "H_FOC V2.0\H_FOC V2.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

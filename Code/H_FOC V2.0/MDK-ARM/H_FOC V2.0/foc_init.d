@@ -42,7 +42,8 @@ h_foc\ v2.0/foc_init.o: ..\APP\FOC_Init.c ..\APP\FOC_Init.h \
   ..\Core\Inc\adc.h ..\Core\Inc\main.h ..\APP\foc_control.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\APP\foc_setting.h \
-  ..\Core\Inc\tim.h ..\APP\Config.h ..\MID\foc_conversion.h \
-  ..\APP\foc_encoder.h ..\Core\Inc\spi.h ..\Core\Inc\cordic.h \
-  ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
-  ..\Core\Inc\usart.h ..\Core\Inc\gpio.h
+  ..\Core\Inc\tim.h ..\Core\Inc\dac.h ..\APP\Config.h \
+  ..\MID\foc_conversion.h ..\APP\foc_encoder.h ..\Core\Inc\spi.h \
+  ..\MID\foc_prase.h ..\Core\Inc\cordic.h ..\Core\Inc\fdcan.h \
+  ..\Core\Inc\fmac.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
+  ..\APP\foc_sys.h

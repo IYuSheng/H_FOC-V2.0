@@ -44,4 +44,5 @@ h_foc\ v2.0/tim.o: ..\Core\Src\tim.c ..\Core\Inc\tim.h ..\Core\Inc\main.h \
   ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
   ..\Core\Inc\spi.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   ..\APP\foc_encoder.h ..\MID\foc_conversion.h ..\APP\Config.h \
-  ..\APP\foc_control.h ..\APP\foc_setting.h
+  ..\APP\foc_sys.h ..\APP\foc_control.h ..\APP\foc_setting.h \
+  ..\MID\foc_prase.h

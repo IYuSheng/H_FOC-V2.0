@@ -44,5 +44,5 @@ h_foc\ v2.0/foc_encoder.o: ..\APP\foc_encoder.c ..\APP\foc_encoder.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\Core\Inc\cordic.h \
   ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
-  ..\APP\foc_control.h ..\APP\foc_setting.h ..\APP\Config.h \
-  ..\MID\foc_conversion.h
+  ..\APP\foc_sys.h ..\APP\config.h ..\APP\foc_control.h \
+  ..\APP\foc_setting.h ..\MID\foc_conversion.h ..\MID\foc_prase.h

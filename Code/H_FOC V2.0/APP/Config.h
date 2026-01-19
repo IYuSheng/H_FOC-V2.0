@@ -38,10 +38,10 @@
 #define I_I_LIMIT                 7.0f
 
 // 速度环PI
-#define SPEED_LOOP_TIME     1000.0f
-#define SPEED_LOOP_COUNT    PWM_FREQ / SPEED_LOOP_TIME  // 速度环调用频率 (1000Hz)
+#define SPEED_LOOP_TIME     2000.0f
+#define SPEED_LOOP_COUNT    PWM_FREQ / SPEED_LOOP_TIME  // 速度环调用频率 (2000Hz)
 #define SPEED_LOOP_DT       1.0f / SPEED_LOOP_TIME      // 速度环调用周期 (单位：s)
-#define SPEED_P_GAIN        0.0005f
+#define SPEED_P_GAIN        0.006f
 #define SPEED_I_GAIN        0.000f
 #define SPEED_I_LIMIT       0.2f
 #define SPEED_OUT_LIMIT     1.0f

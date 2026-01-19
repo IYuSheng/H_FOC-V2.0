@@ -118,7 +118,7 @@ static inline uint16_t encoder_read_reg_correct(uint16_t reg_addr) {
     // 检查错误标志（bit14）
     if (rx2 & ENCODER_ERR_FLAG)
     {
-        debug_log("error flag!");
+        // debug_log("error flag!");
         // 清除错误标志
         encoder_clear_error();
         return 0xFFFF;

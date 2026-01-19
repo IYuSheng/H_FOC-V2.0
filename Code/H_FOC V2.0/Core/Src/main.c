@@ -39,8 +39,6 @@ int main(void)
           break;
 
         case FOC_STATE_RUNNING:
-        // // 编码器机械角度读取
-        // encoder_read_mechanical_angle();
 
         // 设置控制参数
         foc_control_set();
@@ -116,6 +114,8 @@ int main(void)
         foc_task.task_sys_common = 0;
         // foc打印调试任务
         foc_debug();
+        // CAN数据处理
+        FDCAN1_ProcessRxQueue();
       }
 
       /* --------------- 异常状态检测 --------------- */

@@ -4,10 +4,75 @@ static void foc_open_loop_control(float target_speed, float target_outq);
 static void foc_current_control(float target_d, float target_q);
 static void foc_speed_control(float target_speed);
 static void foc_position_control(float target_position);
+static void foc_position_MIT_control(float target_position);
 
 static inline void pos_ramp_reset(float current_pos_deg);
 static inline float pos_ramp_update(float target_pos_deg, float current_pos_deg, float dt);
 
+// ==================== MIT impedance (hybrid) control ====================
+// 这个结构就是“关节性格”：硬/柔本质就是 K (刚度) 和 B (阻尼) 的不同
+typedef struct {
+    float K;          // position stiffness  [Iq/deg]   （你这里输出是Iq，所以单位是“每度产生多少Iq”）
+    float B;          // velocity damping    [Iq/(deg/s)]
+    float I_limit;    // Iq 输出限幅（保护&手感一致）
+    float deadband;   // 位置死区（靠近目标不再抖）
+} mit_impedance_t;
+
+// 你可以先给三套“手感档位”，后面再精调
+static const mit_impedance_t IMP_SOFT = {
+    .K = 0.05f,
+    .B = 0.003f,
+    .I_limit = 2.0f,
+    .deadband = 0.15f, // deg
+};
+
+static const mit_impedance_t IMP_NORMAL = {
+    .K = 0.12f,
+    .B = 0.006f,
+    .I_limit = 3.0f,
+    .deadband = 0.10f,
+};
+
+static const mit_impedance_t IMP_HARD = {
+    .K = 0.30f,
+    .B = 0.015f,
+    .I_limit = 4.0f,
+    .deadband = 0.08f,
+};
+
+// 当前生效的阻抗参数（运行时切换它即可）
+static mit_impedance_t g_imp = {0};
+static uint8_t g_imp_inited = 0;
+
+// 软切换用：防止你切档位时“啪一下”或抖一下
+static inline float lp1(float x, float y, float alpha) {
+    // y = alpha*x + (1-alpha)*y
+    return alpha * x + (1.0f - alpha) * y;
+}
+
+// 外部调用：设置“硬/柔模式”
+// mode: 0=soft, 1=normal, 2=hard
+void mit_set_mode(uint8_t mode)
+{
+    const mit_impedance_t *src = &IMP_NORMAL;
+    if (mode == 0) src = &IMP_SOFT;
+    else if (mode == 2) src = &IMP_HARD;
+
+    // 第一次直接生效
+    if (!g_imp_inited) {
+        g_imp = *src;
+        g_imp_inited = 1;
+        return;
+    }
+
+    // 之后建议：慢慢靠过去（软切换），避免突变
+    // alpha 越小，切换越慢越柔；先 0.05~0.2 试
+    const float alpha = 0.10f;
+    g_imp.K        = lp1(src->K,        g_imp.K,        alpha);
+    g_imp.B        = lp1(src->B,        g_imp.B,        alpha);
+    g_imp.I_limit  = lp1(src->I_limit,  g_imp.I_limit,  alpha);
+    g_imp.deadband = lp1(src->deadband, g_imp.deadband, alpha);
+}
 
 // FOC控制变量
 foc_control_t foc_ctrl;
@@ -40,6 +105,7 @@ void foc_control_set(void)
         foc_ctrl.target_q = data->target_q;
         data->target_q_valid = 0;
     }
+    mit_set_mode(0);
 }
 
 /**
@@ -48,7 +114,7 @@ void foc_control_set(void)
 void foc_debug(void)
 {
     // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", alpha_beta.beta_i, alpha_beta.alpha_i, encoder_data.electrical_angle, foc_ctrl.abc_dq.current_d, foc_ctrl.abc_dq.current_q);
-    debug_log("%.4f, %.4f, %.4f, %.4f", g_ramp.pos_cmd, encoder_data.mechanical_angle, encoder_data.mechanical_speed, position_pid.w_ref);
+    debug_log("%.4f, %.4f, %.4f, %.4f", g_ramp.pos_cmd, encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.target_q);
     // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.abc_dq.current_q, encoder_data.mechanical_speed, foc_ctrl.target_q, foc_ctrl.target_speed);
     // debug_log("%d, %d, %d", svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
     // debug_log("%.4f", foc_voltage_data.vbus);
@@ -93,6 +159,7 @@ void foc_control(void)
     // foc_current_control(foc_ctrl.target_d, foc_ctrl.target_q);
     // foc_speed_control(foc_ctrl.target_speed);
     foc_position_control(foc_ctrl.target_position);
+    // foc_position_MIT_control(foc_ctrl.target_position);
 }
 
 /**
@@ -176,16 +243,16 @@ static void foc_speed_control(float target_speed)
 
     speed_count++;
 
-    if(speed_count > SPEED_LOOP_COUNT)
+    if(speed_count >= SPEED_LOOP_COUNT)
     {
     // ===== 重力补偿前馈 =====
-    float theta = deg2rad(encoder_data.mechanical_angle);
-    const float K_G = 0.38f;
-    const float TH0 = MOTOR_LOW;    //rags
-    float iq_grav = K_G * sinf(theta - TH0);
+    // float theta = deg2rad(encoder_data.mechanical_angle);
+    // const float K_G = 0.38f;
+    // const float TH0 = MOTOR_LOW;
+    // float iq_grav = K_G * sinf(theta - TH0);
 
     float iq_fb = foc_speed_pid_calculate(target_speed, encoder_data.mechanical_speed);
-    foc_ctrl.target_q = iq_fb + iq_grav;
+    foc_ctrl.target_q = iq_fb;
     speed_count = 0;
     }
 
@@ -203,7 +270,7 @@ static void foc_position_control(float target_position)
     count++;
 
     /************************** 1. 位置环PI控制 **************************/
-    if(count > POSITION_LOOP_COUNT)
+    if(count >= POSITION_LOOP_COUNT)
     {
     // 梯形速度规划
     g_ramp.pos_cmd = pos_ramp_update(target_position,
@@ -258,4 +325,90 @@ static inline float pos_ramp_update(float target_pos_deg, float current_pos_deg,
     }
 
     return g_ramp.pos_cmd;
+}
+
+static inline float clampf(float x, float lo, float hi)
+{
+    return (x < lo) ? lo : (x > hi) ? hi : x;
+}
+
+/**
+ * @brief MIT 混合/阻抗控制输出 (Iq)
+ * @param q_cmd      规划/期望位置（deg）—— 你已经有梯形规划输出
+ * @param q          实际位置（deg）
+ * @param qd_cmd     规划/期望速度（deg/s）—— 如果你的pos_ramp能输出速度更好，没有就传0
+ * @param qd         实际速度（deg/s）—— 建议用你现在更干净的观测速度/滤波速度
+ * @return Iq 命令（跟电流环对接）
+ */
+static inline float mit_impedance_iq(float q_cmd, float q, float qd_cmd, float qd)
+{
+    // 1) 位置误差
+    float e = q_cmd - q;
+
+    // 2) 目标附近死区：减少“临界抖动” + 编码器噪声导致的来回咬合
+    if (fabsf(e) < g_imp.deadband) {
+        e = 0.0f;
+    }
+
+    // 3) MIT 阻抗核心：Iq = K*(q_cmd-q) + B*(qd_cmd-qd)
+    float iq = g_imp.K * e + g_imp.B * (qd_cmd - qd);
+
+    // 4) 输出限幅（保护电机/减少尖叫/限制硬度）
+    iq = clampf(iq, -g_imp.I_limit, g_imp.I_limit);
+
+    return iq;
+}
+
+/**
+ * @brief FOC位置闭环（外环位置+阻抗，内环电流）
+ */
+static void foc_position_MIT_control(float target_position)
+{
+    static uint32_t count = 0;
+
+    count++;
+
+    if(count >= POSITION_LOOP_COUNT)
+    {
+        // ========= 0) 选择阻抗档位（你可以用串口/按键/CAN切） =========
+        // 举例：根据某个状态切档（你自己替换）
+        // mit_set_mode(0); // soft
+        // mit_set_mode(1); // normal
+        // mit_set_mode(2); // hard
+        // 注意：mit_set_mode 内部是“软切换”，不会突变
+
+        // ========= 1) 梯形/加速度轨迹规划：把目标变成平滑 q_cmd =========
+        // 你现在只有 pos_cmd，就先这么用
+        g_ramp.pos_cmd = pos_ramp_update(target_position,
+                                         encoder_data.mechanical_angle,
+                                         POSITION_LOOP_DT);
+
+        // 如果你的 ramp 能顺便算出速度（推荐），就用它作为 qd_cmd
+        // 否则先给 0，阻尼项变成 -B*qd（也能用）
+        float q_cmd  = g_ramp.pos_cmd;
+        float qd_cmd = 0.0f;                 // TODO: 若你有 g_ramp.vel_cmd 就填它
+
+        // ========= 2) 取实际速度（建议用观测/滤波后更干净的） =========
+        float q     = encoder_data.mechanical_angle;
+        float qd    = encoder_data.mechanical_speed;  // 或 g_pos_obs.omega_hat
+
+        // ========= 3) MIT 阻抗（混合控制）输出 Iq =========
+        // 注意：这一步替代你 foc_position_pid_calculate 的“外环”
+        float iq_imp = mit_impedance_iq(q_cmd, q, qd_cmd, qd);
+
+        // ========= 4) 重力补偿前馈（你已有） =========
+        float theta = deg2rad(q); // q是deg
+        const float K_G = 0.38f;
+        const float TH0 = MOTOR_LOW;
+        float iq_grav = K_G * sinf(theta - TH0);
+
+        // ========= 5) 合成最终 Iq =========
+        foc_ctrl.target_q = iq_imp + iq_grav;
+
+        // 位置环计数归零
+        count = 0;
+    }
+
+    // ========= 6) 内环电流环照旧 =========
+    foc_current_control(foc_ctrl.target_d, foc_ctrl.target_q);
 }
