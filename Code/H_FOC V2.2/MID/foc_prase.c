@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "usart.h"
+#include "foc_conversion.h"
 
 // 全局变量存储解析的数据
 static uart_parsed_data_t parsed_data = {0};
@@ -14,7 +15,7 @@ static uart_parsed_data_t parsed_data = {0};
 void parse_received_data(char* data, uint8_t len)
 {
     (void)len; // 避免未使用参数警告
-    
+    // debug_log("Received data: %s", data);
     // 检查是否包含 "target_position:" 字符串
     char* tpos_start = strstr(data, "target_position:");
     if(tpos_start != NULL) {
@@ -69,6 +70,22 @@ void parse_received_data(char* data, uint8_t len)
             parsed_data.target_q = value;
             parsed_data.target_q_valid = 1;
         }
+    }
+    // 解析 "MIT:" 其他电机数据
+    if (data[0] == 'M' && data[1] == 'I' && data[2] == 'T' && data[3] == ':') {
+        // 提取电角度、机械角度、机械速度
+        float electrical_angle = (float)((data[4] | (data[5] << 8)) / 10000.0);
+        float mechanical_angle = (float)((data[6] | (data[7] << 8)) / 10000.0);
+        float mechanical_speed = (float)((data[8] | (data[9] << 8)) / 10000.0);
+
+        // 保存解析的值
+        foc_ctrl.motor2_data.motor2_electrical_angle = electrical_angle;
+        foc_ctrl.motor2_data.motor2_mechanical_angle = mechanical_angle;
+        foc_ctrl.motor2_data.motor2_mechanical_speed = mechanical_speed;
+        
+        // debug_log("1");
+
+        // 进行后续的控制计算（如阻抗控制等）
     }
 }
 

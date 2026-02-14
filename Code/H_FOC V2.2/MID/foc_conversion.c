@@ -4,6 +4,9 @@ pi_t iq_pid;
 pi_t id_pid;
 pi_t speed_pid;
 pi_t position_pid;
+SVPWM_t svpwm;
+foc_control_t foc_ctrl;
+AlphaBetaTypeDef alpha_beta;
 
 /**
  * @brief 电角度归一化（映射到0~2π范围）
@@ -40,6 +43,16 @@ inline float deg2rad(float deg)
 }
 
 /**
+ * @brief 弧度制转角度制
+ * @param rad 输入弧度（rad）
+ * @return 转换后角度值（°）
+ */
+inline float rad2deg(float rad)
+{
+    return rad * 57.29577951308232f;  // 180 / π
+}
+
+/**
  * @brief SVPWM通用扇区判断函数
  * @param u_alpha α轴目标电压（V）
  * @param u_beta  β轴目标电压（V）
@@ -67,7 +80,7 @@ inline uint8_t svpwm_sector_calc(AlphaBetaTypeDef *alpha_beta)
         case 4:  return 4;
         case 6:  return 5;
         case 2:  return 6;
-        default: return 1;
+        default: return -1;
     }
 }
 
@@ -289,7 +302,7 @@ inline float32_t foc_id_pid_calculate(float32_t target_id, float32_t actual_id)
     float32_t p_term = id_pid.kp * error;
     
     // 积分项计算与限幅
-    id_pid.integral += id_pid.ki * error * CURRENT_LOOP_DT;
+    id_pid.integral += id_pid.ki * error;
 
     if (id_pid.integral > id_pid.integral_limit) {
         id_pid.integral = id_pid.integral_limit;
@@ -312,7 +325,7 @@ inline float32_t foc_iq_pid_calculate(float32_t target_iq, float32_t actual_iq)
     float32_t p_term = iq_pid.kp * error;
     
     // 积分项计算与限幅
-    iq_pid.integral += iq_pid.ki * error * CURRENT_LOOP_DT;
+    iq_pid.integral += iq_pid.ki * error;
 
     if (iq_pid.integral > iq_pid.integral_limit) {
         iq_pid.integral = iq_pid.integral_limit;
@@ -336,7 +349,7 @@ inline float32_t foc_speed_pid_calculate(float32_t target_speed, float32_t actua
     float32_t p_term = speed_pid.kp * error;
     
     // 积分项计算与限幅
-    speed_pid.integral += speed_pid.ki * error * SPEED_LOOP_DT;
+    speed_pid.integral += speed_pid.ki * error;
 
     if (speed_pid.integral > speed_pid.integral_limit) {
         speed_pid.integral = speed_pid.integral_limit;
@@ -401,18 +414,18 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     // 比例项
     p_term = position_pid.kp * error;
     
-    if(fabs(encoder_data.mechanical_speed) < 2.0f)
-    {
-        // 积分项累加
-        position_pid.integral += position_pid.ki * error * POSITION_LOOP_DT;
+    // if(fabs(encoder_data.mechanical_speed) < 2.0f)
+    // {
+    //     // 积分项累加
+    //     position_pid.integral += position_pid.ki * error;
         
-        // 积分限幅
-        if (position_pid.integral > position_pid.integral_limit) {
-            position_pid.integral = position_pid.integral_limit;
-        } else if (position_pid.integral < -position_pid.integral_limit) {
-            position_pid.integral = -position_pid.integral_limit;
-        }
-    }
+    //     // 积分限幅
+    //     if (position_pid.integral > position_pid.integral_limit) {
+    //         position_pid.integral = position_pid.integral_limit;
+    //     } else if (position_pid.integral < -position_pid.integral_limit) {
+    //         position_pid.integral = -position_pid.integral_limit;
+    //     }
+    // }
 
     // 更新上次误差，用于下次计算微分项
     position_pid.last_error = error;

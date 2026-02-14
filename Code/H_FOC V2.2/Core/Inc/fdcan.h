@@ -19,7 +19,7 @@ extern uint8_t g_fdcan1_rx_flag;
 // 接收队列参数
 #define FDCAN_RX_QUEUE_SIZE 32
 // 用于将CAN数据转换为字符串格式进行解析
-#define FDCAN_RX_PARSE_BUFFER_SIZE 256
+#define FDCAN_RX_PARSE_BUFFER_SIZE 512
 
 void MX_FDCAN1_Init(void);
 
@@ -28,6 +28,8 @@ void MX_FDCAN1_Init(void);
  * @param tx_data 要发送的数据指针
  */
 void my_FDCAN1_Transmit(uint8_t *tx_data);
+
+void FDCAN_SendMotorData(void);
 
 /**
  * @brief 发送四个浮点数数据

@@ -11,7 +11,12 @@
 #include "foc_conversion.h"
 #include "foc_encoder.h"
 #include "foc_prase.h"
+#include "foc_Parameteridentifikation.h"
+#include "foc_sensorless.h"
 #include <math.h>
+
+#define FOC_PARAMETER_IDENTIFICATION_ENABLE 0
+#define FOC_TEST_ENABLE 0
 
 typedef struct {
     float pos_cmd;    // 规划位置输出 (deg)
@@ -31,9 +36,9 @@ static pos_ramp_t g_ramp = {
 void foc_start_init(void);
 
 /**
- * @brief FOC设置外部参数
+ * @brief FOC内环电流环外部调用接口
  */
-void foc_control_set(void);
+void foc_current_in_control(void);
 
 /**
  * @brief FOC控制主函数

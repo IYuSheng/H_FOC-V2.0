@@ -50,7 +50,7 @@ void foc_control_set(void)
 void foc_debug(void)
 {
     // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", foc_ctrl.target_q, encoder_data.electrical_speed, encoder_data.electrical_angle, foc_ctrl.abc_dq.current_d, foc_ctrl.abc_dq.current_q);
-    debug_log("%.4f, %.4f, %.4f, %.4f", g_ramp.pos_cmd, encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.target_q);
+    // debug_log("%.4f, %.4f, %.4f, %.4f", g_ramp.pos_cmd, encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.target_q);
     // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.abc_dq.current_q, encoder_data.mechanical_speed, foc_ctrl.target_q, foc_ctrl.target_speed);
     // debug_log("%d, %d, %d", svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
     // debug_log("%.4f", foc_voltage_data.vbus);
@@ -107,7 +107,7 @@ void foc_control(void)
     // foc_current_control(foc_ctrl.target_d, foc_ctrl.target_q);
     // foc_speed_control(foc_ctrl.target_speed);
     // foc_position_control(foc_ctrl.target_position);
-    // foc_position_MIT_control(foc_ctrl.target_position);
+    foc_position_MIT_control(foc_ctrl.target_position);
 }
 
 /**

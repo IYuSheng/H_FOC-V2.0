@@ -64,7 +64,6 @@ virtualFolder:
             - path: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_tim.c
             - path: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usart.c
             - path: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_rcc.c
-            - path: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi.c
           folders: []
         - name: CMSIS
           files:
@@ -85,11 +84,11 @@ virtualFolder:
                   folders: []
     - name: APP
       files:
+        - path: ../APP/Config.h
         - path: ../APP/FOC_Init.c
         - path: ../APP/FOC_Init.h
-        - path: ../APP/Config.h
-        - path: ../APP/foc_control.h
         - path: ../APP/foc_control.c
+        - path: ../APP/foc_control.h
         - path: ../APP/foc_screen.c
         - path: ../APP/foc_screen.h
         - path: ../APP/foc_encoder.c
@@ -98,11 +97,17 @@ virtualFolder:
         - path: ../APP/foc_setting.h
         - path: ../APP/foc_sys.c
         - path: ../APP/foc_sys.h
+        - path: ../APP/foc_Parameteridentifikation.c
+        - path: ../APP/foc_Parameteridentifikation.h
       folders: []
     - name: MID
       files:
         - path: ../MID/foc_conversion.c
         - path: ../MID/foc_conversion.h
+        - path: ../MID/foc_sensorless.c
+        - path: ../MID/foc_sensorless.h
+        - path: ../MID/foc_communication.c
+        - path: ../MID/foc_communication.h
         - path: ../MID/foc_prase.c
         - path: ../MID/foc_prase.h
       folders: []
@@ -158,7 +163,7 @@ targets:
             warnings: ac5-like-warnings
           global:
             output-debug-info: enable
-            use-microLIB: false
+            use-microLIB: true
           linker:
             $outputTaskExcludes:
               - .bin

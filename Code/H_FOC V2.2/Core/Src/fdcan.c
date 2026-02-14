@@ -56,9 +56,9 @@ void MX_FDCAN1_Init(void)
 
   //========================================================
   // 1) 关键：启用 CAN FD + BRS
-  //    - FDCAN_FRAME_CLASSIC：经典 CAN（你原来是这个）
+  //    - FDCAN_FRAME_CLASSIC：经典 CAN
   //    - FDCAN_FRAME_FD_NO_BRS：CAN FD 但数据域不加速
-  //    - FDCAN_FRAME_FD_BRS：CAN FD + 数据域加速（推荐）
+  //    - FDCAN_FRAME_FD_BRS：CAN FD + 数据域加速
   //========================================================
   hfdcan1.Init.FrameFormat = FDCAN_FRAME_FD_NO_BRS;
 
@@ -200,7 +200,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* FDCAN1 interrupt Init */
-    HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+    NVIC_SetPriority(FDCAN1_IT0_IRQn, 3);
     HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
   /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
@@ -244,8 +244,41 @@ void my_FDCAN1_Transmit(uint8_t *tx_data)
     // 发送数据
     if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &g_fdcan1_tx_header, tx_data) != HAL_OK)
     {
-        debug_log("HAL_FDCAN_AddMessageToTxFifoQ failed\r\n");
+        debug_log("HAL_FDCAN_AddMessageToTxFifoQ failed");
         Error_Handler();
+    }
+}
+
+void FDCAN_SendMotorData(void)
+{
+    // 打包数据，包含头部标识符"MIT:"
+    uint8_t tx_data[8];
+    uint32_t offset = 0;
+
+    // 添加头部标识符 "MIT:"
+    const char* header = "MIT:";
+    for (int i = 0; i < 4; i++) {
+        tx_data[offset++] = header[i];
+    }
+
+    // 将三个浮点数转换为16位整数（乘以10000以保留小数点后4位）
+    int16_t int_data1 = (int16_t)(encoder_data.electrical_angle * 10000);
+    int16_t int_data2 = (int16_t)(encoder_data.mechanical_angle * 10000);
+    int16_t int_data3 = (int16_t)(encoder_data.mechanical_speed * 10000);
+
+    // 将浮点数打包到数据中
+    tx_data[offset++] = (uint8_t)(int_data1 & 0xFF);
+    tx_data[offset++] = (uint8_t)((int_data1 >> 8) & 0xFF);
+    tx_data[offset++] = (uint8_t)(int_data2 & 0xFF);
+    tx_data[offset++] = (uint8_t)((int_data2 >> 8) & 0xFF);
+    tx_data[offset++] = (uint8_t)(int_data3 & 0xFF);
+    tx_data[offset++] = (uint8_t)((int_data3 >> 8) & 0xFF);
+
+    // 调用发送函数
+    if(HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1) > 0)
+    {
+        debug_log("1");
+        my_FDCAN1_Transmit(tx_data);
     }
 }
 

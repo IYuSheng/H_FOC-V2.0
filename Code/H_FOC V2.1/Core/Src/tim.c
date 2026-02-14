@@ -89,7 +89,7 @@ void MX_TIM8_Init(void)
   // 禁用主从模式
   LL_TIM_DisableMasterSlaveMode(TIM8);
 
-  NVIC_SetPriority(TIM8_CC_IRQn, 1);  // 优先级高于ADC中断
+  NVIC_SetPriority(TIM8_CC_IRQn, 1);
   NVIC_EnableIRQ(TIM8_CC_IRQn);
   
   // 配置GPIO
@@ -227,7 +227,7 @@ void MX_TIM3_Init(void)
   LL_TIM_ClearFlag_UPDATE(TIM3);
 
   /* 4. 配置NVIC中断优先级并使能 */
-  NVIC_SetPriority(TIM3_IRQn, 4);
+  NVIC_SetPriority(TIM3_IRQn, 2);
   NVIC_EnableIRQ(TIM3_IRQn);
 
   /* 5. 启动TIM3计数器 */

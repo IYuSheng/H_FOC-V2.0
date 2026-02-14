@@ -291,8 +291,8 @@ static inline void adc1_process_samples(const uint16_t *raw)
     foc_current_data.ib = (float32_t)foc_raw_data.ib * current_conv_factor;
     foc_current_data.ic = (float32_t)foc_raw_data.ic * current_conv_factor;
 
-    // 运行FOC控制
-    foc_control();
+    // FOC电流内环控制
+    foc_current_in_control();
 }
 
 /**

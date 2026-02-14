@@ -46,6 +46,7 @@
 "h_foc v2.0\foc_encoder.o"
 "h_foc v2.0\foc_setting.o"
 "h_foc v2.0\foc_sys.o"
+"h_foc v2.0\foc_parameteridentifikation.o"
 "h_foc v2.0\foc_conversion.o"
 "h_foc v2.0\foc_sensorless.o"
 "h_foc v2.0\foc_communication.o"

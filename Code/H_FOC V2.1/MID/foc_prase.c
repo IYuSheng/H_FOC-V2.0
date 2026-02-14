@@ -14,7 +14,7 @@ static uart_parsed_data_t parsed_data = {0};
 void parse_received_data(char* data, uint8_t len)
 {
     (void)len; // 避免未使用参数警告
-    
+    debug_log("%s", data);
     // 检查是否包含 "target_position:" 字符串
     char* tpos_start = strstr(data, "target_position:");
     if(tpos_start != NULL) {

@@ -246,7 +246,7 @@ void MX_ADC2_Init(void)
   LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_1);  // 传输错误中断
   
   // 设置DMA中断优先级
-  NVIC_SetPriority(DMA1_Channel1_IRQn, 3);
+  NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
   NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
   /* 9. 使能ADC内部稳压器并校准 */

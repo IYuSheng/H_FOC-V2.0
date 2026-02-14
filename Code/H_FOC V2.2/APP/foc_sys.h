@@ -19,14 +19,18 @@ typedef struct
     volatile bool task_update_three_phase_voltage;
     volatile bool task_update_temperature;
     volatile bool task_sys_common;
+    volatile bool task_update_position;
+    volatile bool task_update_speed;
 } FOC_TASK;
 
 extern FOC_TASK foc_task;
 
-#define SYSTICK_FREQUENCY_HZ                    1000         // 系统滴答频率，1000Hz = 1ms
-#define TASK_VBUS_UPDATE_FREQUENCY_HZ           10           // 母线电压更新频率，10Hz = 100ms
-#define TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ  1000         // 三相端电压更新频率，1000Hz = 1ms
-#define TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ    200          // 温度更新频率，200Hz = 5ms
+#define SYSTICK_FREQUENCY_HZ                    1000                // 系统滴答频率，1000Hz = 1ms
+#define TASK_VBUS_UPDATE_FREQUENCY_HZ           10                  // 母线电压更新频率，10Hz = 100ms
+#define TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ  1000                // 三相端电压更新频率，1000Hz = 1ms
+#define TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ    200                 // 温度更新频率，200Hz = 5ms
+#define TASK_POSITION_UPDATE_FREQUENCY_HZ       POSITION_LOOP_TIME  // 位置环执行频率，1000Hz = 1ms
+#define TASK_SPEED_UPDATE_FREQUENCY_HZ          SPEED_LOOP_TIME     // 速度环执行频率，1000Hz = 1ms
 
 void Error_Handler(void);
 

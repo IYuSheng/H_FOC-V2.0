@@ -920,6 +920,16 @@
               <FileType>5</FileType>
               <FilePath>..\APP\foc_sys.h</FilePath>
             </File>
+            <File>
+              <FileName>foc_Parameteridentifikation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\foc_Parameteridentifikation.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_Parameteridentifikation.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\foc_Parameteridentifikation.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

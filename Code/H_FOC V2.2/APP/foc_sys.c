@@ -9,11 +9,15 @@ static volatile uint32_t system_tick = 0;
 static volatile uint32_t task_vbus_counter = 0;
 static volatile uint32_t task_three_voltage_counter = 0;
 static volatile uint32_t task_temperature_counter = 0;
+static volatile uint32_t task_position_counter = 0;
+static volatile uint32_t task_speed_counter = 0;
 
 // 任务执行周期(以系统滴答为单位)
 static const uint32_t task_vbus_period = SYSTICK_FREQUENCY_HZ / TASK_VBUS_UPDATE_FREQUENCY_HZ;
 static const uint32_t task_three_voltage_period = SYSTICK_FREQUENCY_HZ / TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ;
 static const uint32_t task_temperature_period = SYSTICK_FREQUENCY_HZ / TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ;
+static const uint32_t task_position_period = SYSTICK_FREQUENCY_HZ / TASK_POSITION_UPDATE_FREQUENCY_HZ;
+static const uint32_t task_speed_period = SYSTICK_FREQUENCY_HZ / TASK_SPEED_UPDATE_FREQUENCY_HZ;
 
 /**
   * @brief 1ms定时中断处理函数
@@ -50,6 +54,17 @@ void TIM3_IRQHandler(void)
         task_temperature_counter = 0;  // 重置计数器
         foc_task.task_update_temperature = 1;
     }
+
+    if (++task_position_counter >= task_position_period)
+    {
+        task_position_counter = 0;  // 重置计数器
+        foc_task.task_update_position = 1;
+    }
+    if (++task_speed_counter >= task_speed_period)
+    {
+        task_speed_counter = 0;  // 重置计数器
+        foc_task.task_update_speed = 1;
+    }
   }
 }
 
@@ -61,18 +76,20 @@ void TIM8_CC_IRQHandler(void)
   // 仅处理CH5的比较中断（TRGO2触发源）
   if (LL_TIM_IsActiveFlag_CC4(TIM8))
   {
-    // 清除中断标志，上升下降都会触发，所以要在外面清除
+   // 清除中断标志，上升下降都会触发，所以要在外面清除
     LL_TIM_ClearFlag_CC4(TIM8);
-    // 检测TIM8计数器方向，仅UP阶段处理
-    if ((TIM8->CR1 & TIM_CR1_DIR) == 0) 
-    {
-      // 读取编码器电角度
-      encoder_read_electrical_angle();
-      // 编码器机械角度读取及更新机械转速
-      encoder_read_mechanical_angle();
-      // 更新电机转速(被降阶龙伯格观测器替代)
-      // encoder_get_mechanical_speed();
-    }
+   // 检测TIM8计数器方向，仅UP阶段处理
+   if ((TIM8->CR1 & TIM_CR1_DIR) == 0) 
+   {
+     // 读取编码器电角度
+     encoder_read_electrical_angle();
+     // 编码器机械角度读取及更新机械转速
+     encoder_read_mechanical_angle();
+     #if 0  // 当前版本被降阶龙伯格观测器替代
+     // 更新电机转速
+     encoder_get_mechanical_speed();
+     #endif
+   }
   }
 }
 
