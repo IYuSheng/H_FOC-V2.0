@@ -16,6 +16,7 @@ void FOC_Init(void)
   MX_DAC1_Init();
   MX_TIM8_Init();
   MX_TIM3_Init();
+  MX_TIM4_Init();
   bsp_pwm_start();
   MX_CORDIC_Init();
   MX_FMAC_Init();

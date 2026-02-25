@@ -1,7 +1,7 @@
 Dependencies for Project 'H_FOC V2.0', Target 'H_FOC V2.0': (DO NOT MODIFY !)
 CompilerVersion: 6220000::V6.22::ARMCLANG
 F (startup_stm32g431xx.s)(0x69426402)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4 -Wa,armasm,--pd,"__MICROLIB SETA 1"-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-Wa,armasm,--pd,"__UVISION_VERSION SETA 540" -Wa,armasm,--pd,"STM32G431xx SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o "h_foc v2.0/startup_stm32g431xx.o")
-F (../Core/Src/main.c)(0x698F28DE)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/main.o" -MMD)
+F (../Core/Src/main.c)(0x6999654D)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/main.o" -MMD)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
@@ -47,7 +47,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -56,13 +56,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/gpio.c)(0x695FAC8C)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/gpio.o" -MMD)
 I (..\Core\Inc\gpio.h)(0x694262E1)
@@ -111,7 +114,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -119,13 +122,16 @@ I (..\Core\Inc\spi.h)(0x694AA490)
 I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/adc.c)(0x6979BC64)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/adc.o" -MMD)
 I (..\Core\Inc\adc.h)(0x6970FA67)
@@ -171,7 +177,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -180,18 +186,21 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
-F (../Core/Src/cordic.c)(0x694263FF)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/cordic.o" -MMD)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+F (../Core/Src/cordic.c)(0x6995F969)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/cordic.o" -MMD)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
@@ -245,13 +254,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/dac.c)(0x695FAFA9)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/dac.o" -MMD)
 I (..\Core\Inc\dac.h)(0x695FAD73)
@@ -300,7 +312,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
 I (..\Core\Inc\spi.h)(0x694AA490)
@@ -308,15 +320,18 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
-F (../Core/Src/fdcan.c)(0x698F49C9)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/fdcan.o" -MMD)
+F (../Core/Src/fdcan.c)(0x698F4EA9)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/fdcan.o" -MMD)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
@@ -363,7 +378,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fmac.h)(0x69426400)
 I (..\Core\Inc\spi.h)(0x694AA490)
@@ -371,13 +386,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/fmac.c)(0x69426400)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/fmac.o" -MMD)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -426,7 +444,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\spi.h)(0x694AA490)
@@ -434,13 +452,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/spi.c)(0x695FAC5C)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/spi.o" -MMD)
 I (..\Core\Inc\spi.h)(0x694AA490)
@@ -489,7 +510,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -497,13 +518,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/tim.c)(0x697105E5)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/tim.o" -MMD)
 I (..\Core\Inc\tim.h)(0x6953B7BF)
@@ -552,7 +576,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -560,15 +584,18 @@ I (..\Core\Inc\spi.h)(0x694AA490)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
-F (../Core/Src/usart.c)(0x697378D8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/usart.o" -MMD)
+F (../Core/Src/usart.c)(0x699B08EA)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/usart.o" -MMD)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
@@ -615,7 +642,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -623,13 +650,16 @@ I (..\Core\Inc\spi.h)(0x694AA490)
 I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Core/Src/stm32g4xx_it.c)(0x69440296)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/stm32g4xx_it.o" -MMD)
 I (..\Core\Inc\main.h)(0x697A1E37)
@@ -677,7 +707,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -686,13 +716,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 I (..\Core\Inc\stm32g4xx_it.h)(0x694262E4)
 F (../Core/Src/stm32g4xx_hal_msp.c)(0x694262E4)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/stm32g4xx_hal_msp.o" -MMD)
@@ -741,7 +774,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -750,13 +783,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_utils.c)(0x683467F8)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/stm32g4xx_ll_utils.o" -MMD)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_utils.h)(0x683467F8)
@@ -1407,8 +1443,8 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ramfunc.h)(0x683467F8
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr_ex.h)(0x683467F8)
 F (../Middlewares/ST/ARM/DSP/Lib/arm_cortexM4lf_math.lib)(0x694261A5)()
-F (..\APP\Config.h)(0x698F1C08)()
-F (..\APP\FOC_Init.c)(0x6953D9E2)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_init.o" -MMD)
+F (..\APP\Config.h)(0x699AD75A)()
+F (..\APP\FOC_Init.c)(0x6995F969)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_init.o" -MMD)
 I (..\APP\FOC_Init.h)(0x6953BE35)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
 I (..\Core\Inc\stm32g4xx_hal_conf.h)(0x69426401)
@@ -1452,28 +1488,31 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Core\Inc\main.h)(0x697A1E37)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\dac.h)(0x695FAD73)
-I (..\APP\Config.h)(0x698F1C08)
-I (..\MID\foc_conversion.h)(0x698F23AB)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\MID\foc_conversion.h)(0x6995FC45)
 I (..\APP\foc_encoder.h)(0x69738231)
 I (..\Core\Inc\spi.h)(0x694AA490)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_sys.h)(0x6979CD78)
 F (..\APP\FOC_Init.h)(0x6953BE35)()
-F (..\APP\foc_control.c)(0x698F26E4)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_control.o" -MMD)
-I (..\APP\foc_control.h)(0x698DE415)
+F (..\APP\foc_control.c)(0x699B02ED)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_control.o" -MMD)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
@@ -1521,7 +1560,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1530,13 +1569,16 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
-F (..\APP\foc_control.h)(0x698DE415)()
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
+F (..\APP\foc_control.h)(0x699B00EC)()
 F (..\APP\foc_screen.c)(0x69482705)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_screen.o" -MMD)
 F (..\APP\foc_screen.h)(0x69482711)()
 F (..\APP\foc_encoder.c)(0x698DE514)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_encoder.o" -MMD)
@@ -1587,7 +1629,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1595,17 +1637,20 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\config.h)(0x698F1C08)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\config.h)(0x699AD75A)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
-I (..\MID\foc_conversion.h)(0x698F23AB)
+I (..\MID\foc_conversion.h)(0x6995FC45)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (..\APP\foc_encoder.h)(0x69738231)()
 F (..\APP\foc_setting.c)(0x694FB7F9)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_setting.o" -MMD)
 I (..\APP\foc_setting.h)(0x694FB816)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
@@ -1652,7 +1697,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1661,14 +1706,17 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 F (..\APP\foc_setting.h)(0x694FB816)()
-F (..\APP\foc_sys.c)(0x6979CD6E)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_sys.o" -MMD)
+F (..\APP\foc_sys.c)(0x698F4D09)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_sys.o" -MMD)
 I (..\APP\foc_sys.h)(0x6979CD78)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
@@ -1715,7 +1763,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1724,21 +1772,24 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (..\APP\foc_sys.h)(0x6979CD78)()
 F (..\APP\foc_Parameteridentifikation.c)(0x698DE4BB)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_parameteridentifikation.o" -MMD)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\Core\Inc\main.h)(0x697A1E37)
 I (..\APP\FOC_Init.h)(0x6953BE35)
@@ -1783,7 +1834,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1792,14 +1843,17 @@ I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
+I (..\MID\foc_conversion.h)(0x6995FC45)
 I (..\APP\foc_sys.h)(0x6979CD78)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 F (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)()
-F (..\MID\foc_conversion.c)(0x698CA55B)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_conversion.o" -MMD)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+F (..\MID\foc_conversion.c)(0x6999DEF4)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_conversion.o" -MMD)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
@@ -1846,7 +1900,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1856,19 +1910,88 @@ I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
 I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
-F (..\MID\foc_conversion.h)(0x698F23AB)()
-F (..\MID\foc_sensorless.c)(0x6948283B)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_sensorless.o" -MMD)
-F (..\MID\foc_sensorless.h)(0x69482842)()
+F (..\MID\foc_conversion.h)(0x6995FC45)()
+F (..\MID\foc_sensorless.c)(0x69987D5F)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_sensorless.o" -MMD)
+I (..\MID\foc_sensorless.h)(0x699827BA)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
+I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
+I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
+I (..\Core\Inc\adc.h)(0x6970FA67)
+I (..\Core\Inc\main.h)(0x697A1E37)
+I (..\APP\FOC_Init.h)(0x6953BE35)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
+I (..\Core\Inc\stm32g4xx_hal_conf.h)(0x69426401)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g4xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g431xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Include\core_cm4.h)(0x683467E5)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\system_stm32g4xx.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ramfunc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cordic.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_fmac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_bus.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_crs.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_system.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_utils.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dmamux.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
+I (..\Core\Inc\cordic.h)(0x6995F969)
+I (..\Core\Inc\dac.h)(0x695FAD73)
+I (..\Core\Inc\fdcan.h)(0x698F49C2)
+I (..\Core\Inc\fmac.h)(0x69426400)
+I (..\Core\Inc\spi.h)(0x694AA490)
+I (..\Core\Inc\tim.h)(0x6953B7BF)
+I (..\Core\Inc\usart.h)(0x69440920)
+I (..\Core\Inc\gpio.h)(0x694262E1)
+I (..\APP\foc_encoder.h)(0x69738231)
+I (..\APP\foc_sys.h)(0x6979CD78)
+I (..\APP\foc_control.h)(0x699B00EC)
+I (..\APP\foc_setting.h)(0x694FB816)
+I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
+I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_communication.h)(0x697A1E1B)
+F (..\MID\foc_sensorless.h)(0x699827BA)()
 F (..\MID\foc_communication.c)(0x697A1D81)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_communication.o" -MMD)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 I (..\MID\foc_prase.h)(0x69593E21)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
 I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
@@ -1915,7 +2038,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
 I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1925,9 +2048,12 @@ I (..\Core\Inc\usart.h)(0x69440920)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 F (..\MID\foc_communication.h)(0x697A1E1B)()
 F (..\MID\foc_prase.c)(0x698F26B6)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_prase.o" -MMD)
 I (..\MID\foc_prase.h)(0x69593E21)
@@ -1977,7 +2103,7 @@ I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
 I (..\Core\Inc\adc.h)(0x6970FA67)
 I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
 I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
-I (..\Core\Inc\cordic.h)(0x694263FF)
+I (..\Core\Inc\cordic.h)(0x6995F969)
 I (..\Core\Inc\dac.h)(0x695FAD73)
 I (..\Core\Inc\fdcan.h)(0x698F49C2)
 I (..\Core\Inc\fmac.h)(0x69426400)
@@ -1985,11 +2111,219 @@ I (..\Core\Inc\spi.h)(0x694AA490)
 I (..\Core\Inc\tim.h)(0x6953B7BF)
 I (..\Core\Inc\gpio.h)(0x694262E1)
 I (..\APP\foc_encoder.h)(0x69738231)
-I (..\MID\foc_conversion.h)(0x698F23AB)
-I (..\APP\Config.h)(0x698F1C08)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
 I (..\APP\foc_sys.h)(0x6979CD78)
-I (..\APP\foc_control.h)(0x698DE415)
+I (..\APP\foc_control.h)(0x699B00EC)
 I (..\APP\foc_setting.h)(0x694FB816)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
 I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
 I (..\MID\foc_communication.h)(0x697A1E1B)
 F (..\MID\foc_prase.h)(0x69593E21)()
+F (..\MID\foc_cogging_compensation.c)(0x699AD84A)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_cogging_compensation.o" -MMD)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\APP\foc_control.h)(0x699B00EC)
+I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
+I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
+I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
+I (..\APP\foc_setting.h)(0x694FB816)
+I (..\Core\Inc\main.h)(0x697A1E37)
+I (..\APP\FOC_Init.h)(0x6953BE35)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
+I (..\Core\Inc\stm32g4xx_hal_conf.h)(0x69426401)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g4xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g431xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Include\core_cm4.h)(0x683467E5)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\system_stm32g4xx.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ramfunc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cordic.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_fmac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_bus.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_crs.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_system.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_utils.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dmamux.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
+I (..\Core\Inc\adc.h)(0x6970FA67)
+I (..\Core\Inc\cordic.h)(0x6995F969)
+I (..\Core\Inc\dac.h)(0x695FAD73)
+I (..\Core\Inc\fdcan.h)(0x698F49C2)
+I (..\Core\Inc\fmac.h)(0x69426400)
+I (..\Core\Inc\spi.h)(0x694AA490)
+I (..\Core\Inc\tim.h)(0x6953B7BF)
+I (..\Core\Inc\usart.h)(0x69440920)
+I (..\Core\Inc\gpio.h)(0x694262E1)
+I (..\APP\foc_encoder.h)(0x69738231)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\APP\foc_sys.h)(0x6979CD78)
+I (..\MID\foc_communication.h)(0x697A1E1B)
+I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
+I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_sensorless.h)(0x699827BA)
+F (..\MID\foc_cogging_compensation.h)(0x699AD7FE)()
+F (..\MID\foc_vibration_sweep.c)(0x699B0A24)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_vibration_sweep.o" -MMD)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
+I (..\APP\foc_control.h)(0x699B00EC)
+I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
+I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
+I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
+I (..\APP\foc_setting.h)(0x694FB816)
+I (..\Core\Inc\main.h)(0x697A1E37)
+I (..\APP\FOC_Init.h)(0x6953BE35)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
+I (..\Core\Inc\stm32g4xx_hal_conf.h)(0x69426401)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g4xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g431xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Include\core_cm4.h)(0x683467E5)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\system_stm32g4xx.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ramfunc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cordic.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_fmac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_bus.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_crs.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_system.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_utils.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dmamux.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
+I (..\Core\Inc\adc.h)(0x6970FA67)
+I (..\Core\Inc\cordic.h)(0x6995F969)
+I (..\Core\Inc\dac.h)(0x695FAD73)
+I (..\Core\Inc\fdcan.h)(0x698F49C2)
+I (..\Core\Inc\fmac.h)(0x69426400)
+I (..\Core\Inc\spi.h)(0x694AA490)
+I (..\Core\Inc\tim.h)(0x6953B7BF)
+I (..\Core\Inc\usart.h)(0x69440920)
+I (..\Core\Inc\gpio.h)(0x694262E1)
+I (..\APP\foc_encoder.h)(0x69738231)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\APP\foc_sys.h)(0x6979CD78)
+I (..\MID\foc_communication.h)(0x697A1E1B)
+I (..\MID\foc_prase.h)(0x69593E21)
+I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
+F (..\MID\foc_vibration_sweep.h)(0x699B0090)()
+F (..\MID\foc_filter.c)(0x699B0B83)(-xc -std=c99 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-D__MICROLIB -gdwarf-4 -O3 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ../Core/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc -I ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/ST/ARM/DSP/Inc -I ../APP -I ../MID-I./RTE/_H_FOC_V2.0-ID:/Keilv5/ARM/PACK/ARM/CMSIS/6.1.0/CMSIS/Core/Include-D__UVISION_VERSION="540" -DSTM32G431xx -D_RTE_ -DUSE_FULL_LL_DRIVER -DUSE_HAL_DRIVER -DSTM32G431xx -DARM_MATH_CM4-o "h_foc v2.0/foc_filter.o" -MMD)
+I (..\MID\foc_filter.h)(0x699B0B83)
+I (..\APP\foc_control.h)(0x699B00EC)
+I (..\Middlewares\ST\ARM\DSP\Inc\arm_math.h)(0x694261A5)
+I (..\Drivers\CMSIS\Include\cmsis_compiler.h)(0x683467E5)
+I (..\Drivers\CMSIS\Include\cmsis_armclang.h)(0x683467E5)
+I (..\APP\foc_setting.h)(0x694FB816)
+I (..\Core\Inc\main.h)(0x697A1E37)
+I (..\APP\FOC_Init.h)(0x6953BE35)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal.h)(0x683467F8)
+I (..\Core\Inc\stm32g4xx_hal_conf.h)(0x69426401)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_def.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g4xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\stm32g431xx.h)(0x683467F8)
+I (..\Drivers\CMSIS\Include\core_cm4.h)(0x683467E5)
+I (..\Drivers\CMSIS\Device\ST\STM32G4xx\Include\system_stm32g4xx.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_rcc_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_gpio_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_dma_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_fdcan.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_flash_ramfunc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_pwr_ex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_adc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cordic.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_fmac.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_rcc.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_bus.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_crs.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_system.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_exti.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_cortex.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_utils.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_pwr.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dma.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_dmamux.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_spi.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_tim.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_usart.h)(0x683467F8)
+I (..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_ll_gpio.h)(0x683467F8)
+I (..\Core\Inc\adc.h)(0x6970FA67)
+I (..\Core\Inc\cordic.h)(0x6995F969)
+I (..\Core\Inc\dac.h)(0x695FAD73)
+I (..\Core\Inc\fdcan.h)(0x698F49C2)
+I (..\Core\Inc\fmac.h)(0x69426400)
+I (..\Core\Inc\spi.h)(0x694AA490)
+I (..\Core\Inc\tim.h)(0x6953B7BF)
+I (..\Core\Inc\usart.h)(0x69440920)
+I (..\Core\Inc\gpio.h)(0x694262E1)
+I (..\APP\foc_encoder.h)(0x69738231)
+I (..\MID\foc_conversion.h)(0x6995FC45)
+I (..\APP\Config.h)(0x699AD75A)
+I (..\APP\foc_sys.h)(0x6979CD78)
+I (..\MID\foc_communication.h)(0x697A1E1B)
+I (..\MID\foc_prase.h)(0x69593E21)
+I (..\MID\foc_vibration_sweep.h)(0x699B0090)
+I (..\APP\foc_Parameteridentifikation.h)(0x698DD2A8)
+I (..\MID\foc_cogging_compensation.h)(0x699AD7FE)
+I (..\MID\foc_sensorless.h)(0x699827BA)
+F (..\MID\foc_filter.h)(0x699B0B83)()

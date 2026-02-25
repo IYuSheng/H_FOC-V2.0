@@ -11,24 +11,29 @@
 #include "foc_conversion.h"
 #include "foc_encoder.h"
 #include "foc_prase.h"
+#include "foc_vibration_sweep.h"
 #include "foc_Parameteridentifikation.h"
+#include "foc_cogging_compensation.h"
+#include "foc_trajectory_planning.h"
 #include "foc_sensorless.h"
+#include "foc_filter.h"
 #include <math.h>
 
-#define FOC_PARAMETER_IDENTIFICATION_ENABLE 0
-#define FOC_TEST_ENABLE 0
+#define FOC_SPEED_CONTROL_ENABLE            0   // 速度环使能
+#define FOC_POSITION_CONTROL_ENABLE         1   // 位置环使能
+#define FOC_PARAMETER_IDENTIFICATION_ENABLE 0   // 电机参数辨识使能
+#define FOC_COGGING_COMPENSATION_ENABLE     0   // 齿槽转矩补偿使能
+#define FLUX_OBSERVER_ENABLE                0   // 磁链观测器使能
+#define FOC_TEST_ENABLE                     0   // FOC测试使能（启用后会在foc_debug中输出扫频测试信号）
+#define HFI_ENABLE                          0   // 高频注入使能（启用后在foc_current_control_hfi中执行HFI相关处理）
+#define HFI_STANDALONE_MODE                 0   // 1:纯HFI 0:HFI+观测器混合
+#define FOC_RESONANCE_ENABLE                0   // 阶跃测试使能
 
-typedef struct {
-    float pos_cmd;    // 规划位置输出 (deg)
-    float vmax;       // 最大速度 (deg/s)
-    uint8_t inited;
-} pos_ramp_t;
-
-static pos_ramp_t g_ramp = {
-    .pos_cmd = 0.0f,
-    .vmax = 1000.0f,
-    .inited = 0
-};
+typedef enum {
+    SENSORLESS_STATE_HFI,
+    SENSORLESS_STATE_MIX,
+    SENSORLESS_STATE_FLUX,
+} sensorless_state_t;
 
 /**
  * @brief FOC初始化，锁定电机至零位并校零编码器

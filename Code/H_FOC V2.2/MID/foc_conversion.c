@@ -21,6 +21,18 @@ inline float32_t angle_normalize(float32_t angle)
 }
 
 /**
+ * @brief 电角度归一化（映射到-π~π范围）
+ * @param angle 输入电角度（rad，范围无限制）
+ * @return 归一化后电角度（rad，-π~π）
+ */
+inline float32_t angle_normalize_pi(float32_t angle)
+{
+    while (angle < -_PI)   angle += _2PI;
+    while (angle >= _PI)  angle -= _2PI;
+    return angle;
+}
+
+/**
  * @brief 电角度归一化（映射到0~360范围）
  * @param angle 输入电角度（°，范围无限制）
  * @return 归一化后电角度（°，0~360）
@@ -281,7 +293,7 @@ inline void abc_to_dq_current(void *current_abc_ptr, foc_control_t *foc_ctrl, fl
     float32_t alpha, beta;
     float32_t sin_val, cos_val;
     
-    arm_sin_cos_f32(angle, &sin_val, &cos_val);
+    CORDIC_SinCos_Deg(angle, &sin_val, &cos_val);
     
     // 使用DSP库的Clarke变换将三相电流转换为两相静止坐标系
     arm_clarke_f32(current_abc->ia, current_abc->ib, &alpha, &beta);
@@ -368,7 +380,7 @@ inline float32_t foc_speed_pid_calculate(float32_t target_speed, float32_t actua
     }
     
     
-    return DIRECTION_CW * speed_pid.output;
+    return speed_pid.output;
 }
 
 /**
@@ -386,14 +398,14 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     
     // 计算误差（目标 - 当前）
     error = target_position - current_position;
-    if(fabs(error) < 1.0f)
-    {
-        position_pid.kd = POSITION_D_GAIN * fabs(error) / 1.0f;
-    }
-    else
-    {
-        position_pid.kd = POSITION_D_GAIN;
-    }
+    // if(fabs(error) < 1.0f)
+    // {
+    //     position_pid.kd = POSITION_D_GAIN * fabs(error) / 1.0f;
+    // }
+    // else
+    // {
+    //     position_pid.kd = POSITION_D_GAIN;
+    // }
 
     position_pid.w_ref = POSITION_KV * error; // 期望速度
     
@@ -414,18 +426,18 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     // 比例项
     p_term = position_pid.kp * error;
     
-    // if(fabs(encoder_data.mechanical_speed) < 2.0f)
-    // {
-    //     // 积分项累加
-    //     position_pid.integral += position_pid.ki * error;
+    // if(fabs(error) < 5.0f)
+    {
+        // 积分项累加
+        position_pid.integral += position_pid.ki * error;
         
-    //     // 积分限幅
-    //     if (position_pid.integral > position_pid.integral_limit) {
-    //         position_pid.integral = position_pid.integral_limit;
-    //     } else if (position_pid.integral < -position_pid.integral_limit) {
-    //         position_pid.integral = -position_pid.integral_limit;
-    //     }
-    // }
+        // 积分限幅
+        if (position_pid.integral > position_pid.integral_limit) {
+            position_pid.integral = position_pid.integral_limit;
+        } else if (position_pid.integral < -position_pid.integral_limit) {
+            position_pid.integral = -position_pid.integral_limit;
+        }
+    }
 
     // 更新上次误差，用于下次计算微分项
     position_pid.last_error = error;

@@ -45,22 +45,7 @@ int main(void)
         case FOC_STATE_RUNNING: /* 电机运行态 */
           // 设置外部控制参数
           foc_control_set();
-          #if 1
-          // 执行FOC外环位置控制(1000HZ)
-          if(foc_task.task_update_position)
-          {
-            foc_task.task_update_position = 0;
-            foc_control();
-          }
-          #endif
-          #if 0
-          // 执行FOC外环速度控制(1000HZ)
-          if(foc_task.task_update_speed)
-          {
-            foc_task.task_update_speed = 0;
-            foc_speed_control();
-          }
-          #endif
+
           break;
 
         case FOC_STATE_FAULT: /* 电机故障态 */
@@ -108,7 +93,6 @@ int main(void)
           break;
 
         case FOC_STATE_STOP:  /* 电机停止态 */
-          debug_log("[ERROR]");
 
           break;
 
@@ -144,44 +128,45 @@ int main(void)
       }
 
       /* --------------- 异常状态检测 --------------- */
-    //  if(foc_voltage_data.vbus > motor_ctrl.vbus_max)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_OVER_VOLTAGE;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
-    //  if(foc_voltage_data.vbus < motor_ctrl.vbus_min)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_UNDER_VOLTAGE;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
-    //  if(foc_current_data.ia > motor_ctrl.current_max
-    //  || foc_current_data.ib > motor_ctrl.current_max
-    //  || foc_current_data.ic > motor_ctrl.current_max)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_OVER_CURRENT;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
-    //  if(foc_voltage_data.temp > motor_ctrl.temp_max)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_OVER_TEMPERATURE;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
-    //  if(foc_current_data.ia + foc_current_data.ib + foc_current_data.ic > 10.0f
-    //  || foc_current_data.ia + foc_current_data.ib + foc_current_data.ic < -10.0f)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_I_SAMPLING_ERROR;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
-    //  if(encoder_data.mechanical_angle > motor_ctrl.angle_max || encoder_data.mechanical_angle < motor_ctrl.angle_min)
-    //  {
-    //    motor_ctrl.fault_type = FAULT_ENCODER_ANGLE;
-    //    if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
-    //    motor_ctrl.foc_state = FOC_STATE_FAULT;
-    //  }
+     if(foc_voltage_data.vbus > motor_ctrl.vbus_max)
+     {
+       motor_ctrl.fault_type = FAULT_OVER_VOLTAGE;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
+     if(foc_voltage_data.vbus < motor_ctrl.vbus_min)
+     {
+       motor_ctrl.fault_type = FAULT_UNDER_VOLTAGE;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
+     
+     if(foc_current_data.ia > motor_ctrl.current_max
+     || foc_current_data.ib > motor_ctrl.current_max
+     || foc_current_data.ic > motor_ctrl.current_max)
+     {
+       motor_ctrl.fault_type = FAULT_OVER_CURRENT;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
+     if(foc_voltage_data.temp > motor_ctrl.temp_max)
+     {
+       motor_ctrl.fault_type = FAULT_OVER_TEMPERATURE;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
+     if(foc_current_data.ia + foc_current_data.ib + foc_current_data.ic > 10.0f
+     || foc_current_data.ia + foc_current_data.ib + foc_current_data.ic < -10.0f)
+     {
+       motor_ctrl.fault_type = FAULT_I_SAMPLING_ERROR;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
+     if(encoder_data.mechanical_angle > motor_ctrl.angle_max || encoder_data.mechanical_angle < motor_ctrl.angle_min)
+     {
+       motor_ctrl.fault_type = FAULT_ENCODER_ANGLE;
+       if(motor_ctrl.foc_state == FOC_STATE_RUNNING)
+       motor_ctrl.foc_state = FOC_STATE_FAULT;
+     }
     }
 }

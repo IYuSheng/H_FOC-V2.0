@@ -43,8 +43,10 @@ typedef struct
  float32_t speed;            // 速度（rad/s）
  float32_t speed_rpm;        // 速度（rpm）
  float32_t target_speed;     // 目标速度(rpm)
- float32_t target_position;  // 目标位置（弧度）
+ float32_t target_position;  // 目标位置（°）
+ float32_t shaped_t_p;       // 整形后目标位置
  float32_t Te;               // 电磁转矩（N·m）
+ uint8_t sensor_mode;        // 传感器模式
  struct
  {
    float32_t current_d;       // 实际D轴电流
@@ -86,6 +88,13 @@ extern SVPWM_t svpwm;
 * @return 归一化后电角度（rad，0~2π）
 */
 extern inline float32_t angle_normalize(float32_t angle);
+
+/**
+ * @brief 电角度归一化（映射到-π~π范围）
+ * @param angle 输入电角度（rad，范围无限制）
+ * @return 归一化后电角度（rad，-π~π）
+ */
+extern inline float32_t angle_normalize_pi(float32_t angle);
 
 /**
  * @brief 电角度归一化（映射到0~360范围）

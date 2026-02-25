@@ -9,15 +9,11 @@ static volatile uint32_t system_tick = 0;
 static volatile uint32_t task_vbus_counter = 0;
 static volatile uint32_t task_three_voltage_counter = 0;
 static volatile uint32_t task_temperature_counter = 0;
-static volatile uint32_t task_position_counter = 0;
-static volatile uint32_t task_speed_counter = 0;
 
 // 任务执行周期(以系统滴答为单位)
 static const uint32_t task_vbus_period = SYSTICK_FREQUENCY_HZ / TASK_VBUS_UPDATE_FREQUENCY_HZ;
 static const uint32_t task_three_voltage_period = SYSTICK_FREQUENCY_HZ / TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ;
 static const uint32_t task_temperature_period = SYSTICK_FREQUENCY_HZ / TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ;
-static const uint32_t task_position_period = SYSTICK_FREQUENCY_HZ / TASK_POSITION_UPDATE_FREQUENCY_HZ;
-static const uint32_t task_speed_period = SYSTICK_FREQUENCY_HZ / TASK_SPEED_UPDATE_FREQUENCY_HZ;
 
 /**
   * @brief 1ms定时中断处理函数
@@ -54,17 +50,6 @@ void TIM3_IRQHandler(void)
         task_temperature_counter = 0;  // 重置计数器
         foc_task.task_update_temperature = 1;
     }
-
-    if (++task_position_counter >= task_position_period)
-    {
-        task_position_counter = 0;  // 重置计数器
-        foc_task.task_update_position = 1;
-    }
-    if (++task_speed_counter >= task_speed_period)
-    {
-        task_speed_counter = 0;  // 重置计数器
-        foc_task.task_update_speed = 1;
-    }
   }
 }
 
@@ -90,6 +75,21 @@ void TIM8_CC_IRQHandler(void)
      encoder_get_mechanical_speed();
      #endif
    }
+  }
+}
+
+/**
+  * @brief 外环定时中断处理
+  */
+void TIM4_IRQHandler(void)
+{
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM4))
+  {
+    // 清除中断标志
+    LL_TIM_ClearFlag_UPDATE(TIM4);
+
+    // 执行外环控制
+    foc_control();
   }
 }
 

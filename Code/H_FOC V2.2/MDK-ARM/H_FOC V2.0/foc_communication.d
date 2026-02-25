@@ -48,4 +48,5 @@ h_foc\ v2.0/foc_communication.o: ..\MID\foc_communication.c \
   ..\Core\Inc\fmac.h ..\Core\Inc\spi.h ..\Core\Inc\tim.h \
   ..\Core\Inc\usart.h ..\Core\Inc\gpio.h ..\APP\foc_encoder.h \
   ..\APP\foc_sys.h ..\APP\foc_control.h ..\APP\foc_setting.h \
-  ..\APP\foc_Parameteridentifikation.h
+  ..\MID\foc_vibration_sweep.h ..\APP\foc_Parameteridentifikation.h \
+  ..\MID\foc_cogging_compensation.h ..\MID\foc_sensorless.h

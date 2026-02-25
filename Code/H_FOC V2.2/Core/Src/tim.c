@@ -233,3 +233,32 @@ void MX_TIM3_Init(void)
   /* 5. 启动TIM3计数器 */
   LL_TIM_EnableCounter(TIM3);
 }
+
+void MX_TIM4_Init(void)
+{
+  LL_TIM_InitTypeDef TIM_InitStruct = {0};
+
+  /* 1. 使能 TIM4 时钟（APB1 总线，与 TIM3 同总线） */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
+
+  /* 2. 配置 TIM4 基础参数（与 TIM3 相同，1ms 周期） */
+  TIM_InitStruct.Prescaler = 169;                     // 170MHz/(169+1)=1MHz
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP; // 向上计数
+  TIM_InitStruct.Autoreload = 999;                    // 1MHz/(999+1)=1kHz → 1ms
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM4, &TIM_InitStruct);
+  
+  LL_TIM_DisableARRPreload(TIM4);
+  LL_TIM_SetClockSource(TIM4, LL_TIM_CLOCKSOURCE_INTERNAL);
+
+  /* 3. 使能更新中断 */
+  LL_TIM_EnableIT_UPDATE(TIM4);
+  LL_TIM_ClearFlag_UPDATE(TIM4);
+
+  /* 4. 配置 NVIC：优先级为 2（低于 TIM8 的优先级 1） */
+  NVIC_SetPriority(TIM4_IRQn, 2);
+  NVIC_EnableIRQ(TIM4_IRQn);
+
+  /* 5. 启动计数器 */
+  LL_TIM_EnableCounter(TIM4);
+}
