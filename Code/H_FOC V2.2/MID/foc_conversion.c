@@ -115,7 +115,7 @@ inline void svpwm_calc_times(AlphaBetaTypeDef *alpha_beta, SVPWM_t *svpwm, float
     const float32_t u_max = _1_SQRT3 * vdc;
     const float32_t u_max_sq = u_max * u_max;
 
-    // 2) 过调制处理（只在超限时用 sqrtf,省时）
+    // 2) 过调制处理
     if (u_mag_sq > u_max_sq && u_mag_sq > 1e-12f)
     {
         float32_t u_mag = sqrtf(u_mag_sq);
@@ -235,7 +235,6 @@ inline void svpwm_duty_calc(SVPWM_t *svpwm)
 /**
  * @brief 将三相电流转换为αβ坐标系下的值
  * @param abc_i 三相电流指针
- * @param abc_v 三相电压指针
  * @param alpha_beta 输出的αβ轴值
  */
 inline void clark_transform(void *abc_i, AlphaBetaTypeDef *alpha_beta)

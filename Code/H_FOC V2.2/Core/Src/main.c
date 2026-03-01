@@ -36,9 +36,8 @@ int main(void)
             motor_ctrl.fault_type = FAULT_ENCODER;
             motor_ctrl.foc_state = FOC_STATE_FAULT;
           }
-          // 初始化完成后再启用电机中断及编码器读取中断
-          NVIC_EnableIRQ(DMA1_Channel2_IRQn); // ADC转换及FOC核心中断开启
-          LL_TIM_EnableIT_CC4(TIM8);          // 编码器读取中断开启
+          // 开启FOC中断
+          foc_start();
           motor_ctrl.foc_state = FOC_STATE_RUNNING;
           break;
 
@@ -122,9 +121,8 @@ int main(void)
         // foc打印调试任务
         foc_debug();
         // CAN数据发送
-        // FDCAN_SendMotorData();
         // CAN数据处理
-        FDCAN1_ProcessRxQueue();
+        CAN_Process();
       }
 
       /* --------------- 异常状态检测 --------------- */

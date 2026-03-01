@@ -56,7 +56,7 @@
 #define POSITION_P_GAIN     0.5f
 #define POSITION_I          0.0f
 #define POSITION_I_GAIN     (POSITION_I * POSITION_LOOP_DT) //KI = Ki * Ts(减小一个乘法)
-#define POSITION_D_GAIN     0.01f
+#define POSITION_D_GAIN     0.02f
 #define POSITION_I_LIMIT    0.08f
 #define POSITION_OUT_LIMIT  4.0f
 #define POSITION_KV         8.0f

@@ -28,6 +28,7 @@
 #define HFI_ENABLE                          0   // 高频注入使能（启用后在foc_current_control_hfi中执行HFI相关处理）
 #define HFI_STANDALONE_MODE                 0   // 1:纯HFI 0:HFI+观测器混合
 #define FOC_RESONANCE_ENABLE                0   // 阶跃测试使能
+#define FOC_SHAPER_ENABLE                   1   // 整形输入使能
 
 typedef enum {
     SENSORLESS_STATE_HFI,

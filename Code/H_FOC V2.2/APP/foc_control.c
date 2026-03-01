@@ -89,10 +89,13 @@ void foc_start_init(void)
     resonance_test_trigger();
     #endif
 
-    ei_shaper_init(2.84f, 0.05f, POSITION_LOOP_DT);
+    #if FOC_SHAPER_ENABLE
+    // EI整型器 (固有频率 V Ts)
+    // ei_shaper_init(2.84f, 0.05f, POSITION_LOOP_DT);
 
-    // 轨迹规划 速度 加速度 加加速度
-    s_curve_planner_init(&g_pos_planner, 50.0f, 200.0f, 1000.0f, POSITION_LOOP_DT);
+    // 轨迹规划 (速度 加速度 加加速度 Ts)
+    s_curve_planner_init(&g_pos_planner, 500.0f, 200.0f, 1000.0f, POSITION_LOOP_DT);
+    #endif
     
     #if FLUX_OBSERVER_ENABLE
     // 初始化磁链观测器
@@ -199,7 +202,6 @@ void foc_control(void)
             foc_ctrl.target_q = 0.0f;
         break;
     }
-
     #endif
     
     #if FOC_COGGING_COMPENSATION_ENABLE
@@ -406,31 +408,35 @@ static inline void foc_speed_control(float target_speed)
 }
 
 /**
- * @brief FOC位置闭环（外环位置环 + 内环电流环）
+ * @brief FOC位置闭环（外环位置环） 1Khz 运行
  * @param target_position 目标位置（机械弧度，范围：0~360）
  */
 static inline void foc_position_control(float target_position)
 {
     /************************** 位置环PI控制 **************************/
-    static float last_target = 0.0f;
-    static uint8_t first_run = 1;
-    
-    // 检测目标位置是否变化（或首次运行）
-    if (first_run || fabsf(target_position - last_target) > 0.1f) {
-        s_curve_set_target(&g_pos_planner, 
-                          encoder_data.mechanical_angle,  // 起点：当前实际位置
-                          target_position);               // 终点：新目标
-        last_target = target_position;
-        first_run = 0;
-    }
-    // 获取S曲线规划后的平滑位置
-    if (s_curve_is_done(&g_pos_planner)) {
-        foc_ctrl.shaped_t_p = target_position; // 规划完成，直接使用目标
-    } else {
-        foc_ctrl.shaped_t_p = s_curve_update(&g_pos_planner);
-    }
+    #if FOC_SHAPER_ENABLE
+        static float last_target = 0.0f;
+        static uint8_t first_run = 1;
+        
+        // 检测目标位置是否变化（或首次运行）
+        if (first_run || fabsf(target_position - last_target) > 0.1f) {
+            s_curve_set_target(&g_pos_planner, 
+                            foc_ctrl.shaped_t_p,            // 起点：当前参考位置
+                            target_position);               // 终点：新目标
+            last_target = target_position;
+            first_run = 0;
+        }
+        // 获取S曲线规划后的平滑位置
+        if (s_curve_is_done(&g_pos_planner)) {
+            foc_ctrl.shaped_t_p = target_position; // 规划完成，直接使用目标
+        } else {
+            foc_ctrl.shaped_t_p = s_curve_update(&g_pos_planner);
+        }
+        // foc_ctrl.shaped_t_p = ei_shaper_process(foc_ctrl.shaped_t_p); // 位置环输入整形
+    #else
+        foc_ctrl.shaped_t_p = target_position;
+    #endif
 
-    // foc_ctrl.shaped_t_p = ei_shaper_process(target_position); // 位置环输入整形
     float iq_fb = foc_position_pid_calculate(foc_ctrl.shaped_t_p, encoder_data.mechanical_angle);
 
     // ===== 重力补偿前馈 =====
