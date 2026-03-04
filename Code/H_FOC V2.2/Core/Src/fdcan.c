@@ -2,6 +2,8 @@
 #include "string.h"
 #include "stdio.h"
 
+joint_control_t joint_control;
+
 /* ===================== 私有变量 ===================== */
 
 FDCAN_HandleTypeDef hfdcan1;
@@ -88,7 +90,7 @@ void MX_FDCAN1_Init(void)
     hfdcan1.Init.DataTimeSeg2 = 3;
     
     // 过滤器配置
-    hfdcan1.Init.StdFiltersNbr = 1;
+    hfdcan1.Init.StdFiltersNbr = 2;
     hfdcan1.Init.ExtFiltersNbr = 0;
     hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
     
@@ -102,25 +104,33 @@ void MX_FDCAN1_Init(void)
 
 /**
  * @brief 配置接收过滤器
- * @note 接收所有标准帧（软件过滤更灵活）
  */
 void FDCAN_Config_Filter(void)
 {
     FDCAN_FilterTypeDef sFilterConfig;
     
-    // 标准ID掩码模式：接收所有帧（0x000 & 0x000 = 接收所有）
+    /* ========== 过滤器0：接收目标为本节点的帧 ========== */
     sFilterConfig.IdType = FDCAN_STANDARD_ID;
     sFilterConfig.FilterIndex = 0;
     sFilterConfig.FilterType = FDCAN_FILTER_MASK;
     sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
-    sFilterConfig.FilterID1 = 0x000;  // 接收所有ID
-    sFilterConfig.FilterID2 = 0x000;  // 掩码全0表示忽略所有位
+    sFilterConfig.FilterID1 = ((uint32_t)JOINT_ID << 4);  // Dst = 本节点
+    sFilterConfig.FilterID2 = 0x0F0;                      // 只检查Dst
     
     if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig) != HAL_OK) {
         Error_Handler();
     }
     
-    // 全局过滤器：拒绝非匹配帧和远程帧
+    /* ========== 过滤器1：接收广播帧 ========== */
+    sFilterConfig.FilterIndex = 1;
+    sFilterConfig.FilterID1 = ((uint32_t)JOINT_ID_BROADCAST << 4);  // Dst = 0x0F
+    sFilterConfig.FilterID2 = 0x0F0;
+    
+    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &sFilterConfig) != HAL_OK) {
+        Error_Handler();
+    }
+    
+    /* ========== 全局过滤器 ========== */
     HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, 
                                 FDCAN_REJECT,           // 拒绝非匹配标准帧
                                 FDCAN_REJECT,           // 拒绝非匹配扩展帧
@@ -202,9 +212,10 @@ int8_t FDCAN_SendPacket(uint8_t src_id, uint8_t dst_id, uint8_t msg_type,
  */
 int8_t FDCAN_SendJointStatus(uint8_t joint_id, joint_status_t *status)
 {
-    // 直接发送结构体（已pack）
-    return FDCAN_SendPacket(joint_id, JOINT_ID_BROADCAST, MSG_TYPE_STATUS,
+    int8_t ret = FDCAN_SendPacket(joint_id, JOINT_ID_BROADCAST, MSG_TYPE_STATUS,
                            (uint8_t*)status, sizeof(joint_status_t));
+
+    return ret;
 }
 
 /**
@@ -215,8 +226,18 @@ int8_t FDCAN_SendJointStatus(uint8_t joint_id, joint_status_t *status)
  */
 int8_t FDCAN_SendControlCmd(uint8_t dst_id, joint_control_t *cmd)
 {
-    return FDCAN_SendPacket(JOINT_ID_MASTER, dst_id, MSG_TYPE_CONTROL,
-                           (uint8_t*)cmd, sizeof(joint_control_t));
+    int8_t rc;
+    // 只有主节点才能发送控制指令
+    if(JOINT_ID == JOINT_ID_MASTER)
+    {
+        rc = FDCAN_SendPacket(JOINT_ID_MASTER, dst_id, MSG_TYPE_CONTROL,
+                            (uint8_t*)cmd, sizeof(joint_control_t));
+    }
+    else
+    {
+        rc = -1;
+    }
+    return rc;
 }
 
 /* ===================== 接收处理 ===================== */
@@ -233,6 +254,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     uint8_t data[64];
     
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &header, data) != HAL_OK) {
+        debug_log("RX: GetMsg FAILED");
         return;
     }
     
@@ -279,39 +301,7 @@ void FDCAN_ProcessRxQueue(void)
             continue;  // 不是发给自己的
         }
         
-        // 根据消息类型处理
-        switch (type) {
-            case MSG_TYPE_STATUS: {
-                if (frame.len >= sizeof(joint_status_t)) {
-                    joint_status_t *status = (joint_status_t*)frame.data;
-                    // 这里可以调用应用层回调处理其他关节的状态
-                    // 例如：更新关节位置表
-                }
-                break;
-            }
-            
-            case MSG_TYPE_CONTROL: {
-                if (frame.len >= sizeof(joint_control_t)) {
-                    joint_control_t *cmd = (joint_control_t*)frame.data;
-                    // 应用层处理控制指令
-                    // 例如：设置目标位置
-                }
-                break;
-            }
-            
-            case MSG_TYPE_SYNC: {
-                // 同步帧处理（多关节轨迹同步）
-                // 可以触发执行缓存的轨迹点
-                break;
-            }
-            
-            case MSG_TYPE_ERROR: {
-                // 错误处理
-                break;
-            }
-        }
-        
-        // 调用用户回调（可选）
+        // 调用用户回调
         FDCAN_RxCallback(&frame);
     }
 }
@@ -328,10 +318,67 @@ uint32_t FDCAN_GetRxDropCount(void)
     return rx_drop_count;
 }
 
-/* ===================== 弱定义回调（用户可重写） ===================== */
-
 __attribute__((weak)) void FDCAN_RxCallback(can_frame_t *frame)
 {
     (void)frame;
-    // 用户可在其他文件实现此函数处理自定义逻辑
+}
+
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  if(fdcanHandle->Instance==FDCAN1)
+  {
+  /* USER CODE BEGIN FDCAN1_MspInit 0 */
+
+  /* USER CODE END FDCAN1_MspInit 0 */
+    LL_RCC_SetFDCANClockSource(LL_RCC_FDCAN_CLKSOURCE_PCLK1);
+
+    /* FDCAN1 clock enable */
+    __HAL_RCC_FDCAN_CLK_ENABLE();
+
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    /**FDCAN1 GPIO Configuration
+    PB8-BOOT0     ------> FDCAN1_RX
+    PB9     ------> FDCAN1_TX
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* FDCAN1 interrupt Init */
+    HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
+  /* USER CODE BEGIN FDCAN1_MspInit 1 */
+
+  /* USER CODE END FDCAN1_MspInit 1 */
+  }
+}
+
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef* fdcanHandle)
+{
+
+  if(fdcanHandle->Instance==FDCAN1)
+  {
+  /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+
+  /* USER CODE END FDCAN1_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_FDCAN_CLK_DISABLE();
+
+    /**FDCAN1 GPIO Configuration
+    PB8-BOOT0     ------> FDCAN1_RX
+    PB9     ------> FDCAN1_TX
+    */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8|GPIO_PIN_9);
+
+    /* FDCAN1 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
+  /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+
+  /* USER CODE END FDCAN1_MspDeInit 1 */
+  }
 }

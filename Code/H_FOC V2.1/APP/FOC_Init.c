@@ -15,13 +15,20 @@ void FOC_Init(void)
   MX_FDCAN1_Init();
   MX_DAC1_Init();
   MX_TIM8_Init();
-  MX_TIM3_Init(); 
+  MX_TIM3_Init();
+  MX_TIM4_Init();
   bsp_pwm_start();
   MX_CORDIC_Init();
   MX_FMAC_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
-  
+}
+
+void foc_start(void)
+{
+  // 初始化完成后再启用电机中断及编码器读取中断
+  NVIC_EnableIRQ(DMA1_Channel2_IRQn); // ADC转换及FOC核心中断开启
+  LL_TIM_EnableIT_CC4(TIM8);          // 编码器读取中断开启
 }
 
 void SystemClock_Config(void)

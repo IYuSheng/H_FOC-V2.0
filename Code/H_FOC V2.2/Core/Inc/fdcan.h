@@ -7,7 +7,11 @@
 
 /* ===================== 通信协议定义 ===================== */
 
-// 节点ID范围：0-15（支持16个关节） 标准ID 11位
+// 当前关节ID
+#define JOINT_ID            1
+
+// 节点ID范围：0-14（支持15个关节，0x0F为广播） 标准ID 11位
+#define JOINT_ID_MAX        (15-1)
 #define JOINT_ID_MASTER     0x00    // 主节点
 #define JOINT_ID_BROADCAST  0x0F    // 广播地址
 
@@ -27,20 +31,18 @@
 
 /* ===================== 定点数缩放因子 ===================== 
  * Q格式定义：物理值 = 原始值 × 缩放因子
- * 使用int32_t可表示范围：±2.1×10⁹ × 缩放因子
  */
-#define POS_SCALE       0.0001f     // 位置：0.0001°/LSB  (±214748°)
-#define VEL_SCALE       0.001f      // 速度：0.001 rpm/LSB (±2.1M rpm)
-#define CUR_SCALE       0.001f      // 电流：0.001 A/LSB   (±2.1M A)
-#define TORQUE_SCALE    0.001f      // 力矩：0.001 Nm/LSB  (±2.1M Nm)
-#define TEMP_SCALE      0.1f        // 温度：0.1°C/LSB     (±2.1亿°C)
+#define SCALE_32          0.00001f
+#define INV_SCALE_32      (1.0f / SCALE_32)
+#define SCALE_16          0.01f
+#define INV_SCALE_16      (1.0f / SCALE_16)
 
 // 定点数转换宏
-#define FLOAT_TO_FIX(f, scale)      ((int32_t)((f) / (scale)))
-#define FIX_TO_FLOAT(i, scale)      ((float)(i) * (scale))
+#define FLOAT_TO_FIX(f)      ((int32_t)((f) * INV_SCALE_32))
+#define FIX_TO_FLOAT(i)      ((float)(i) * SCALE_32)
 
-#define FLOAT_TO_FIX16(f, scale)    ((int16_t)((f) / (scale)))
-#define FIX16_TO_FLOAT(i, scale)    ((float)(i) * (scale))
+#define FLOAT_TO_FIX16(f)    ((int16_t)((f) * INV_SCALE_16))
+#define FIX16_TO_FLOAT(i)    ((float)(i) * SCALE_16)
 
 /* ===================== 数据结构定义 ===================== */
 
@@ -70,6 +72,8 @@ typedef struct {
     uint8_t  len;           // 实际数据长度
     bool     is_extended;   // 是否为扩展帧
 } can_frame_t;
+
+extern joint_control_t joint_control;
 
 /* ===================== FDCAN配置 ===================== */
 

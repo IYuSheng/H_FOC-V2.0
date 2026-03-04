@@ -45,4 +45,7 @@ h_foc\ v2.0/foc_encoder.o: ..\APP\foc_encoder.c ..\APP\foc_encoder.h \
   ..\Core\Inc\dac.h ..\Core\Inc\fdcan.h ..\Core\Inc\fmac.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   ..\APP\foc_sys.h ..\APP\config.h ..\APP\foc_control.h \
-  ..\APP\foc_setting.h ..\MID\foc_conversion.h ..\MID\foc_prase.h
+  ..\APP\foc_setting.h ..\MID\foc_conversion.h ..\MID\foc_prase.h \
+  ..\MID\foc_vibration_sweep.h ..\APP\foc_Parameteridentifikation.h \
+  ..\MID\foc_cogging_compensation.h ..\MID\foc_sensorless.h \
+  ..\MID\foc_communication.h

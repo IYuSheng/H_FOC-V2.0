@@ -43,12 +43,23 @@ typedef struct
  float32_t speed;            // 速度（rad/s）
  float32_t speed_rpm;        // 速度（rpm）
  float32_t target_speed;     // 目标速度(rpm)
- float32_t target_position;  // 目标位置（弧度）
+ float32_t target_position;  // 目标位置（°）
+ float32_t shaped_t_p;       // 整形后目标位置
+ float32_t Te;               // 电磁转矩（N·m）
+ uint8_t sensor_mode;        // 传感器模式
  struct
  {
-   float32_t current_d;     // 实际D轴电流
-   float32_t current_q;     // 实际Q轴电流
+   float32_t current_d;       // 实际D轴电流
+   float32_t current_q;       // 实际Q轴电流
+   float32_t current_d_filt;  // 滤波后的实际D轴电流
+   float32_t current_q_filt;  // 滤波后的实际Q轴电流
  }abc_dq;  // 经采集变换后的实际dq轴电流
+ struct
+ {
+  float32_t motor2_electrical_angle; // 电机2电机电角度（从编码器读取）
+  float32_t motor2_mechanical_angle; // 电机2机械角度（从编码器读取）
+  float32_t motor2_mechanical_speed; // 电机2机械速度（从编码器读取）
+ }motor2_data; // 电机2相关数据
 } foc_control_t;
 
 // PID控制器结构体
@@ -66,7 +77,9 @@ typedef struct {
    float32_t w_ref;        // 期望速度
 } pi_t;
 
-extern pi_t position_pid;
+extern foc_control_t foc_ctrl;
+extern AlphaBetaTypeDef alpha_beta;
+extern SVPWM_t svpwm;
 
 // FOC变换相关函数声明
 /**
@@ -77,13 +90,32 @@ extern pi_t position_pid;
 extern inline float32_t angle_normalize(float32_t angle);
 
 /**
+ * @brief 电角度归一化（映射到-π~π范围）
+ * @param angle 输入电角度（rad，范围无限制）
+ * @return 归一化后电角度（rad，-π~π）
+ */
+extern inline float32_t angle_normalize_pi(float32_t angle);
+
+/**
  * @brief 电角度归一化（映射到0~360范围）
  * @param angle 输入电角度（°，范围无限制）
  * @return 归一化后电角度（°，0~360）
  */
 extern inline float32_t angle_normalize_360(float32_t angle);
 
+/**
+ * @brief 角度制转弧度制
+ * @param deg 输入角度（°）
+ * @return 转换后弧度值（rad）
+ */
 extern inline float deg2rad(float deg);
+
+/**
+ * @brief 弧度制转角度制
+ * @param rad 输入弧度（rad）
+ * @return 转换后角度值（°）
+ */
+extern inline float rad2deg(float rad);
 
 /**
 * @brief SVPWM通用扇区判断函数

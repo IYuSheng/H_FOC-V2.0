@@ -118,11 +118,12 @@ int main(void)
       if(foc_task.task_sys_common)
       {
         foc_task.task_sys_common = 0;
-        // foc打印调试任务
-        foc_debug();
         // CAN数据发送
+        CAN_ReportStatus(encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.abc_dq.current_q, foc_voltage_data.temp);
         // CAN数据处理
         CAN_Process();
+        // foc打印调试任务
+        foc_debug();
       }
 
       /* --------------- 异常状态检测 --------------- */

@@ -8,6 +8,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "FOC_Init.h"
 #include "foc_control.h"
+#include "foc_communication.h"
 
 /**
  * @brief 电机控制结构体
@@ -20,6 +21,8 @@ typedef struct
     float vbus_max;              // 母线最高电压阈值（V）
     float vbus_min;              // 母线最低电压阈值（V）
     float current_max;           // 最大电流阈值（A）
+    float angle_max;             // 最大角度阈值（°/s）
+    float angle_min;             // 最小角度阈值（°/s）
 } Motor_Control_t;
 
 #ifdef __cplusplus

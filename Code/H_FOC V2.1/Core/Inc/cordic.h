@@ -38,9 +38,21 @@ extern "C" {
 
 void MX_CORDIC_Init(void);
 
-/* USER CODE BEGIN Prototypes */
+/**
+ * @brief 使用CORDIC计算正弦和余弦（替代arm_sin_cos_f32）- 输入为弧度
+ * @param angle_rad 角度（弧度），范围-π到π
+ * @param sin_val 输出正弦值（-1.0 ~ 1.0）
+ * @param cos_val 输出余弦值（-1.0 ~ 1.0）
+ */
+inline void CORDIC_SinCos_Rad(float angle_rad, float *sin_val, float *cos_val);
 
-/* USER CODE END Prototypes */
+/**
+ * @brief 使用CORDIC计算正弦和余弦（替代arm_sin_cos_f32）- 输入为角度
+ * @param angle_deg 角度（度），范围0~360
+ * @param sin_val 输出正弦值（-1.0 ~ 1.0）
+ * @param cos_val 输出余弦值（-1.0 ~ 1.0）
+ */
+inline void CORDIC_SinCos_Deg(float angle_deg, float *sin_val, float *cos_val);
 
 #ifdef __cplusplus
 }

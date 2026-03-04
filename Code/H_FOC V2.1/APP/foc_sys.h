@@ -23,10 +23,10 @@ typedef struct
 
 extern FOC_TASK foc_task;
 
-#define SYSTICK_FREQUENCY_HZ                    1000         // 系统滴答频率，1000Hz = 1ms
-#define TASK_VBUS_UPDATE_FREQUENCY_HZ           10           // 母线电压更新频率，10Hz = 100ms
-#define TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ  1000         // 三相端电压更新频率，1000Hz = 1ms
-#define TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ    200          // 温度更新频率，200Hz = 5ms
+#define SYSTICK_FREQUENCY_HZ                    1000                // 系统滴答频率，1000Hz = 1ms
+#define TASK_VBUS_UPDATE_FREQUENCY_HZ           10                  // 母线电压更新频率，10Hz = 100ms
+#define TASK_THREE_VOLTAGE_UPDATE_FREQUENCY_HZ  1000                // 三相端电压更新频率，1000Hz = 1ms
+#define TASK_TEMPERATURE_UPDATE_FREQUENCY_HZ    200                 // 温度更新频率，200Hz = 5ms
 
 void Error_Handler(void);
 

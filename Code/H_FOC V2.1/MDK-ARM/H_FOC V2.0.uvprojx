@@ -920,6 +920,16 @@
               <FileType>5</FileType>
               <FilePath>..\APP\foc_sys.h</FilePath>
             </File>
+            <File>
+              <FileName>foc_Parameteridentifikation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\foc_Parameteridentifikation.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_Parameteridentifikation.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\foc_Parameteridentifikation.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -964,6 +974,46 @@
               <FileName>foc_prase.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\MID\foc_prase.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_cogging_compensation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MID\foc_cogging_compensation.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_cogging_compensation.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MID\foc_cogging_compensation.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_vibration_sweep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MID\foc_vibration_sweep.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_vibration_sweep.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MID\foc_vibration_sweep.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MID\foc_filter.c</FilePath>
+            </File>
+            <File>
+              <FileName>foc_filter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MID\foc_filter.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_trajectory_planning.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\MID\foc_trajectory_planning.h</FilePath>
+            </File>
+            <File>
+              <FileName>foc_trajectory_planning.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\MID\foc_trajectory_planning.c</FilePath>
             </File>
           </Files>
         </Group>

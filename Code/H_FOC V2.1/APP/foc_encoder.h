@@ -59,7 +59,7 @@
 #define SPEED_CALC_INTERVAL    0.001f       // 速度计算间隔（1ms，单位：秒）
 #define SPEED_FILTER_K         0.2f        // 速度低通滤波系数（0~1，越小越平滑）
 #define DIRECTION_CW           1            //电机方向
-#define ENCODER_ZERO           5.8f       //编码器零位（单位：度）
+#define ENCODER_ZERO           -6.71f       //编码器零位（单位：度）
 
 /* ================================= 数据类型定义 ================================= */
 // 编码器状态枚举

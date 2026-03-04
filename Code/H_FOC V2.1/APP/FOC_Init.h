@@ -34,5 +34,6 @@
 #include "foc_sys.h"
 
 void FOC_Init(void);
+void foc_start(void);
 
 #endif /*__ GPIO_H__ */

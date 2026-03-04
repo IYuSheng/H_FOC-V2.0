@@ -45,4 +45,7 @@ h_foc\ v2.0/adc.o: ..\Core\Src\adc.c ..\Core\Inc\adc.h ..\Core\Inc\main.h \
   ..\MID\foc_conversion.h ..\APP\Config.h \
   ..\Middlewares\ST\ARM\DSP\Inc\arm_math.h \
   ..\Drivers\CMSIS\Include\cmsis_compiler.h ..\APP\foc_sys.h \
-  ..\APP\foc_control.h ..\APP\foc_setting.h ..\MID\foc_prase.h
+  ..\APP\foc_control.h ..\APP\foc_setting.h ..\MID\foc_prase.h \
+  ..\MID\foc_vibration_sweep.h ..\APP\foc_Parameteridentifikation.h \
+  ..\MID\foc_cogging_compensation.h ..\MID\foc_sensorless.h \
+  ..\MID\foc_communication.h

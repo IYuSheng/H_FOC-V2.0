@@ -46,4 +46,6 @@ h_foc\ v2.0/foc_sys.o: ..\APP\foc_sys.c ..\APP\foc_sys.h \
   ..\Core\Inc\spi.h ..\Core\Inc\tim.h ..\Core\Inc\usart.h \
   ..\Core\Inc\gpio.h ..\APP\foc_encoder.h ..\MID\foc_conversion.h \
   ..\APP\Config.h ..\APP\foc_control.h ..\APP\foc_setting.h \
-  ..\MID\foc_prase.h
+  ..\MID\foc_prase.h ..\MID\foc_vibration_sweep.h \
+  ..\APP\foc_Parameteridentifikation.h ..\MID\foc_cogging_compensation.h \
+  ..\MID\foc_sensorless.h ..\MID\foc_communication.h

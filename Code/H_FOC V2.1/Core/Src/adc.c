@@ -246,7 +246,7 @@ void MX_ADC2_Init(void)
   LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_1);  // 传输错误中断
   
   // 设置DMA中断优先级
-  NVIC_SetPriority(DMA1_Channel1_IRQn, 2);
+  NVIC_SetPriority(DMA1_Channel1_IRQn, 3);
   NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
   /* 9. 使能ADC内部稳压器并校准 */
@@ -283,16 +283,16 @@ void MX_ADC2_Init(void)
  */
 static inline void adc1_process_samples(const uint16_t *raw)
 {
-    foc_raw_data.ia = (q15_t)(adc1_offset[0] - raw[0]);
-    foc_raw_data.ib = (q15_t)(adc1_offset[1] - raw[1]);
-    foc_raw_data.ic = (q15_t)(adc1_offset[2] - raw[2]);
+    foc_raw_data.ia = (q15_t)(adc1_offset[0]) - raw[0];
+    foc_raw_data.ib = (q15_t)(adc1_offset[1]) - raw[1];
+    foc_raw_data.ic = (q15_t)(adc1_offset[2]) - raw[2];
 
     foc_current_data.ia = (float32_t)foc_raw_data.ia * current_conv_factor;
     foc_current_data.ib = (float32_t)foc_raw_data.ib * current_conv_factor;
     foc_current_data.ic = (float32_t)foc_raw_data.ic * current_conv_factor;
 
-    // 运行FOC控制
-    foc_control();
+    // FOC电流内环控制
+    foc_current_in_control();
 }
 
 /**

@@ -33,6 +33,7 @@ extern "C" {
  */
 void MX_TIM8_Init(void);
 void MX_TIM3_Init(void);
+void MX_TIM4_Init(void);
 
 /**
  * @brief 初始化PWM输出

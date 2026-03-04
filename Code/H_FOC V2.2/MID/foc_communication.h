@@ -5,10 +5,17 @@
 #include "fdcan.h"
 #include "foc_conversion.h"
 
+extern uint8_t g_local_node_id;  // 本关节ID
+
 /**
  * @brief FOC设置外部参数
  */
 void foc_control_set(void);
+
+/**
+ * @brief 发送当前关节状态
+ */
+void CAN_ReportStatus(float pos, float vel, float cur, float temp);
 
 /**
  * @brief 主循环调用（1ms周期）

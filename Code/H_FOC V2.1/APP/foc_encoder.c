@@ -67,15 +67,15 @@ static inline uint16_t spi2_transfer16(uint16_t tx_data) {
     uint16_t rx_data = 0;
     
     // 等待发送缓冲区空
-    while (!LL_SPI_IsActiveFlag_TXE(SPI2));
-    LL_SPI_TransmitData16(SPI2, tx_data);
-    
-    // 等待接收完成
-    while (!LL_SPI_IsActiveFlag_RXNE(SPI2));
-    rx_data = LL_SPI_ReceiveData16(SPI2);
-    
-    // 等待传输完成
-    while (LL_SPI_IsActiveFlag_BSY(SPI2));
+   while (!LL_SPI_IsActiveFlag_TXE(SPI2));
+   LL_SPI_TransmitData16(SPI2, tx_data);
+   
+   // 等待接收完成
+   while (!LL_SPI_IsActiveFlag_RXNE(SPI2));
+   rx_data = LL_SPI_ReceiveData16(SPI2);
+   
+   // 等待传输完成
+   while (LL_SPI_IsActiveFlag_BSY(SPI2));
     
     return rx_data;
 }
@@ -274,7 +274,7 @@ float encoder_read_mechanical_angle(void)
 
     pos_obs_update(encoder_data.mechanical_angle, PWM_PERIOD_S);
     encoder_data.mechanical_speed = g_pos_obs.omega_hat;
-    encoder_data.electrical_speed = -DIRECTION_CW * deg2rad(encoder_data.mechanical_speed * MOTOR_POLE_PAIRS); // 正负跟电机接线相关
+    encoder_data.electrical_speed = deg2rad(encoder_data.mechanical_speed * MOTOR_POLE_PAIRS); // 正负跟电机接线相关
 
     return encoder_data.mechanical_angle;
 }

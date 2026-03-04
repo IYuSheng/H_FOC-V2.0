@@ -61,18 +61,35 @@ void TIM8_CC_IRQHandler(void)
   // 仅处理CH5的比较中断（TRGO2触发源）
   if (LL_TIM_IsActiveFlag_CC4(TIM8))
   {
-    // 清除中断标志，上升下降都会触发，所以要在外面清除
+   // 清除中断标志，上升下降都会触发，所以要在外面清除
     LL_TIM_ClearFlag_CC4(TIM8);
-    // 检测TIM8计数器方向，仅UP阶段处理
-    if ((TIM8->CR1 & TIM_CR1_DIR) == 0) 
-    {
-      // 读取编码器电角度
-      encoder_read_electrical_angle();
-      // 编码器机械角度读取及更新机械转速
-      encoder_read_mechanical_angle();
-      // 更新电机转速(被降阶龙伯格观测器替代)
-      // encoder_get_mechanical_speed();
-    }
+   // 检测TIM8计数器方向，仅UP阶段处理
+   if ((TIM8->CR1 & TIM_CR1_DIR) == 0) 
+   {
+     // 读取编码器电角度
+     encoder_read_electrical_angle();
+     // 编码器机械角度读取及更新机械转速
+     encoder_read_mechanical_angle();
+     #if 0  // 当前版本被降阶龙伯格观测器替代
+     // 更新电机转速
+     encoder_get_mechanical_speed();
+     #endif
+   }
+  }
+}
+
+/**
+  * @brief 外环定时中断处理
+  */
+void TIM4_IRQHandler(void)
+{
+  if(LL_TIM_IsActiveFlag_UPDATE(TIM4))
+  {
+    // 清除中断标志
+    LL_TIM_ClearFlag_UPDATE(TIM4);
+
+    // 执行外环控制
+    foc_control();
   }
 }
 

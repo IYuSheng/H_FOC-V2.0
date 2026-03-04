@@ -60,6 +60,13 @@ typedef struct
   float32_t motor2_mechanical_angle; // 电机2机械角度（从编码器读取）
   float32_t motor2_mechanical_speed; // 电机2机械速度（从编码器读取）
  }motor2_data; // 电机2相关数据
+ struct
+ {
+  float rc_x;
+  float rc_y;
+  float rc_x_speed;
+  float rc_y_speed;
+ }robot_data; // 机械关节数据
 } foc_control_t;
 
 // PID控制器结构体
