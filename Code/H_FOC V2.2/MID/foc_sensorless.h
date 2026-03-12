@@ -32,7 +32,7 @@ extern FluxObserver_t g_flux_obs;
 #define FLUX_R_S        MOTOR_RESISTANCE        // 定子电阻（Ω）
 
 // PLL参数（根据带宽设置）
-#define PLL_BANDWIDTH_HZ    1000.0f     // PLL带宽，如1000Hz
+#define PLL_BANDWIDTH_HZ    1000.0f     // PLL带宽
 #define PLL_KP              (2.0f * 0.707f * 6.2831853f * PLL_BANDWIDTH_HZ)  // 2*zeta*wn
 #define PLL_KI              ((6.2831853f * PLL_BANDWIDTH_HZ) * (6.2831853f * PLL_BANDWIDTH_HZ))  // wn^2
 

@@ -38,12 +38,12 @@ void flux_observer_update(FluxObserver_t *obs, float u_alpha, float u_beta,
     }
 
     // ===== 1. 磁链观测器（非线性部分）=====
-    float y1 = u_alpha - FLUX_R_S * i_alpha;
+    float y1 = u_alpha - FLUX_R_S * i_alpha; // 反电动势
     float y2 = u_beta  - FLUX_R_S * i_beta;
     
     // 计算磁链误差 eta = x - Ls*i
-    float eta1 = obs->x1 - FLUX_L_S * i_alpha;
-    float eta2 = obs->x2 - FLUX_L_S * i_beta;
+    float eta1 = obs->x1 - MOTOR_INDUCTANCE_Ld * i_alpha;  // 转子磁链(气隙磁链)
+    float eta2 = obs->x2 - MOTOR_INDUCTANCE_Lq * i_beta;
     
     // 计算误差幅值平方 ||eta||^2
     float eta_norm_sq = eta1*eta1 + eta2*eta2;
@@ -52,7 +52,7 @@ void flux_observer_update(FluxObserver_t *obs, float u_alpha, float u_beta,
     float error_term = FLUX_GAMMA_K * (FLUX_PHI_M_2 - eta_norm_sq);
     
     // 更新观测器状态（欧拉积分）
-    obs->x1 += Ts * (y1 + error_term * eta1);
+    obs->x1 += Ts * (y1 + error_term * eta1);   // 总磁链
     obs->x2 += Ts * (y2 + error_term * eta2);
     
     // ===== 2. PLL提取角度=====

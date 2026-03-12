@@ -1,5 +1,4 @@
 #include "foc_control.h"
-#include "foc_communication.h"
 
 SCurve_Planner_t g_pos_planner;
 robot_cart_ctrl_out_t cart_out;
@@ -16,34 +15,15 @@ static inline void foc_current_control_hfi(float target_d, float target_q);stati
 void foc_debug(void)
 {
     // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", foc_ctrl.target_q, foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.electrical_speed, encoder_data.electrical_angle);
-    // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.shaped_t_p, encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.abc_dq.current_q);
-    // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.mechanical_speed, foc_ctrl.target_speed);
     // debug_log("%d, %d, %d", svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
     // debug_log("%.4f, %.4f, %.4f, %.4f", foc_current_data.ia, foc_current_data.ib, foc_current_data.ic, foc_ctrl.angle);
     // debug_log("%.4f", foc_voltage_data.vbus);
-    // FDCAN_SendFloat4Data(foc_ctrl.target_position, encoder_data.mechanical_angle, foc_ctrl.abc_dq.current_q, foc_ctrl.target_q);
 
     // 电磁转矩计算
     // foc_ctrl.Te = 1.5f * MOTOR_POLE_PAIRS * (MOTOR_FLUX_LINKAGE * foc_ctrl.abc_dq.current_q);
     // debug_log("%.4f", foc_ctrl.Te);
 
-    // debug_log("%.2f, %.2f, %.4f, %.4f", 
-    // angle_normalize_pi(deg2rad(encoder_data.electrical_angle-180.0f)),
-    // g_flux_obs.theta_hat,
-    // -encoder_data.electrical_speed,
-    // g_flux_obs.omega_filt);
-
-    // debug_log("%.2f, %.2f, %.4f, %.4f", 
-    // angle_normalize_pi(deg2rad(encoder_data.electrical_angle-180.0f)),
-    // g_hfi_pll.theta_est,
-    // g_flux_obs.theta_hat,
-    // g_hfi_pll.i_term);
-
-    // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", g_hfi_pll.omega_est_filt, g_flux_obs.omega_filt, -encoder_data.electrical_speed, g_hfi_pll.theta_est, g_flux_obs.theta_hat);
-
-    // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.robot_data.rc_x, foc_ctrl.robot_data.rc_y, foc_ctrl.robot_data.rc_x_speed, foc_ctrl.robot_data.rc_y_speed);
-    // debug_log("%.4f, %.4f, %.4f, %.4f", cart_out.iq1, cart_out.iq2, foc_ctrl.robot_data.rc_x, foc_ctrl.robot_data.rc_y);
-    debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
+    debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
     
     #if FOC_TEST_ENABLE // 扫频测试
     // q轴正弦波扫频输出
@@ -100,7 +80,7 @@ void foc_start_init(void)
     // ei_shaper_init(2.84f, 0.05f, POSITION_LOOP_DT);
 
     // 轨迹规划 (速度 加速度 加加速度 Ts)
-    s_curve_planner_init(&g_pos_planner, 500.0f, 200.0f, 1000.0f, POSITION_LOOP_DT);
+    s_curve_planner_init(&g_pos_planner, 5000.0f, 2000.0f, 5000.0f, POSITION_LOOP_DT);
     #endif
     
     #if FLUX_OBSERVER_ENABLE
@@ -139,10 +119,8 @@ void foc_start_init(void)
 void foc_control(void)
 {
     #if FOC_RESONANCE_ENABLE
-
     static uint16_t count = 0;
     float iq_fb;
-    
     switch(g_res_test.state) {
         case 1:
             g_res_test.start_pos = encoder_data.mechanical_angle;
@@ -259,14 +237,6 @@ void foc_control(void)
         // foc_position_MIT_control(foc_ctrl.target_position);
         #endif
     #endif
-
-    // foc_xy_pd_control(0.03f, -0.05f, 0.0f, 0.0f, &cart_out);
-    
-    // joint_control.target_cur = FLOAT_TO_FIX16(cart_out.iq2);
-    // joint_control.control_mode = 2;
-    // FDCAN_SendControlCmd(1, &joint_control);
-
-    // foc_ctrl.target_q = cart_out.iq1;
 }
 
 /**
@@ -695,106 +665,4 @@ static inline void foc_current_control_hfi(float target_d, float target_q)
     svpwm_calc_times(&alpha_beta, &svpwm, foc_voltage_data.vbus);
     svpwm_duty_calc(&svpwm);
     bsp_pwm_set_duty_three_phase(svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
-}
-
-/**
- * @brief 计算双关节末端相对主轴平面坐标
- * @param x_out 末端X坐标输出
- * @param y_out 末端Y坐标输出
- */
-void foc_calc_end_effector_xy(float *x_out, float *y_out, float *x_out_speed, float *y_out_speed)
-{
-    if ((x_out == NULL) || (y_out == NULL)) {
-        return;
-    }
-
-    float sin_theta_1, cos_theta_1;
-    float sin_theta_12, cos_theta_12;
-
-    // 主关节角度（单位：度）
-    float theta1_deg = encoder_data.mechanical_angle - FOC_LINK1_ZERO;
-    float theta2_deg = foc_ctrl.motor2_data.motor2_mechanical_angle - FOC_LINK2_ZERO;
-    float theta12_deg = theta1_deg + theta2_deg;
-
-    CORDIC_SinCos_Deg(theta1_deg, &sin_theta_1, &cos_theta_1);
-    CORDIC_SinCos_Deg(theta12_deg, &sin_theta_12, &cos_theta_12);
-
-    *x_out = -(FOC_LINK1_LENGTH * sin_theta_1 + FOC_LINK2_LENGTH * sin_theta_12);
-    *y_out = -(FOC_LINK1_LENGTH * cos_theta_1 + FOC_LINK2_LENGTH * cos_theta_12);
-
-    // 主关节速度
-    float dq1 = deg2rad(encoder_data.mechanical_speed);
-    float dq2 = deg2rad(foc_ctrl.motor2_data.motor2_mechanical_speed);
-
-    float j11 = -(FOC_LINK1_LENGTH * cos_theta_1 + FOC_LINK2_LENGTH * cos_theta_12);
-    float j12 = -(FOC_LINK2_LENGTH * cos_theta_12);
-    float j21 = (FOC_LINK1_LENGTH * sin_theta_1 + FOC_LINK2_LENGTH * sin_theta_12);
-    float j22 = (FOC_LINK2_LENGTH * sin_theta_12);
-
-    *x_out_speed = j11 * dq1 + j12 * dq2;
-    *y_out_speed = j21 * dq1 + j22 * dq2;
-}
-
-static inline float foc_clampf(float val, float min_val, float max_val)
-{
-    if (val < min_val) return min_val;
-    if (val > max_val) return max_val;
-    return val;
-}
-
-/**
- * @brief XY位置PD控制（D项=期望速度-当前速度）并输出双关节电流
- * @param x_ref 期望X位置(m)
- * @param y_ref 期望Y位置(m)
- * @param vx_ref 期望X速度(m/s)
- * @param vy_ref 期望Y速度(m/s)
- * @param out 输出控制中间量与iq结果
- */
-void foc_xy_pd_control(float x_ref, float y_ref, float vx_ref, float vy_ref, robot_cart_ctrl_out_t *out)
-{
-    if (out == NULL) {
-        return;
-    }
-
-    // 刷新末端位置速度状态（基于当前双关节角度与角速度）
-    foc_calc_end_effector_xy(&foc_ctrl.robot_data.rc_x, &foc_ctrl.robot_data.rc_y,
-                             &foc_ctrl.robot_data.rc_x_speed, &foc_ctrl.robot_data.rc_y_speed);
-
-    out->x = foc_ctrl.robot_data.rc_x;
-    out->y = foc_ctrl.robot_data.rc_y;
-    out->vx = foc_ctrl.robot_data.rc_x_speed;
-    out->vy = foc_ctrl.robot_data.rc_y_speed;
-
-    // D项使用期望速度与当前速度之差
-    out->fx = FOC_XY_KP_X * (x_ref - out->x) + FOC_XY_KD_X * (vx_ref - out->vx);
-    out->fy = FOC_XY_KP_Y * (y_ref - out->y) + FOC_XY_KD_Y * (vy_ref - out->vy);
-
-    out->fx = foc_clampf(out->fx, -FOC_XY_FX_LIMIT, FOC_XY_FX_LIMIT);
-    out->fy = foc_clampf(out->fy, -FOC_XY_FY_LIMIT, FOC_XY_FY_LIMIT);
-
-    // 重新计算当前姿态下Jacobian（与你当前foc_calc_end_effector_xy保持同一坐标定义）
-    float theta1_deg = encoder_data.mechanical_angle - FOC_LINK1_ZERO;
-    float theta2_deg = foc_ctrl.motor2_data.motor2_mechanical_angle - FOC_LINK2_ZERO;
-    float theta12_deg = theta1_deg + theta2_deg;
-
-    float sin_theta_1, cos_theta_1;
-    float sin_theta_12, cos_theta_12;
-    CORDIC_SinCos_Deg(theta1_deg, &sin_theta_1, &cos_theta_1);
-    CORDIC_SinCos_Deg(theta12_deg, &sin_theta_12, &cos_theta_12);
-
-    float j11 = -(FOC_LINK1_LENGTH * cos_theta_1 + FOC_LINK2_LENGTH * cos_theta_12);
-    float j12 = -(FOC_LINK2_LENGTH * cos_theta_12);
-    float j21 =  (FOC_LINK1_LENGTH * sin_theta_1 + FOC_LINK2_LENGTH * sin_theta_12);
-    float j22 =  (FOC_LINK2_LENGTH * sin_theta_12);
-
-    // 关节力矩：tau = J^T * F
-    out->tau1 = j11 * out->fx + j21 * out->fy;
-    out->tau2 = j12 * out->fx + j22 * out->fy;
-
-    // 力矩转电流并限幅
-    out->iq1 = out->tau1 / FOC_JOINT1_KT;
-    out->iq2 = out->tau2 / FOC_JOINT2_KT;
-
-    out->iq1 = foc_clampf(out->iq1, -FOC_JOINT1_IQ_LIMIT, FOC_JOINT1_IQ_LIMIT);
-    out->iq2 = foc_clampf(out->iq2, -FOC_JOINT2_IQ_LIMIT, FOC_JOINT2_IQ_LIMIT);
 }

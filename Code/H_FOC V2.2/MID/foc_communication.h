@@ -15,7 +15,7 @@ void foc_control_set(void);
 /**
  * @brief 发送当前关节状态
  */
-void CAN_ReportStatus(float pos, float vel, float cur, float temp);
+void CAN_ReportStatus(float pos, float vel);
 
 /**
  * @brief 主循环调用（1ms周期）

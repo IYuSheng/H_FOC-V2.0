@@ -20,7 +20,7 @@ from matplotlib.animation import FuncAnimation
 
 # ==================== 配置 ====================
 class Config:
-    PORT = "COM23"
+    PORT = "COM8"
     BAUDRATE = 500000
     L1, L2 = 0.07748, 0.0625
     ZERO1, ZERO2 = -53.7, 172.5

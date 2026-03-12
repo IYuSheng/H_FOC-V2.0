@@ -454,3 +454,43 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     
     return position_pid.output;
 }
+
+/**
+ * @brief 计算双关节末端相对主轴平面坐标
+ * @param x_out 末端X坐标输出
+ * @param y_out 末端Y坐标输出
+ * @param x_out_speed 末端X坐标速度输出
+ * @param y_out_speed 末端Y坐标速度输出
+ */
+void foc_calc_end_effector_xy(float *x_out, float *y_out, float *x_out_speed, float *y_out_speed)
+{
+    if ((x_out == NULL) || (y_out == NULL)) {
+        return;
+    }
+
+    float sin_theta_1, cos_theta_1;
+    float sin_theta_12, cos_theta_12;
+
+    // 主关节角度（单位：度）
+    float theta1_deg = encoder_data.mechanical_angle - FOC_LINK1_ZERO;
+    float theta2_deg = foc_ctrl.motor2_data.motor2_mechanical_angle - FOC_LINK2_ZERO;
+    float theta12_deg = theta1_deg + theta2_deg;
+
+    CORDIC_SinCos_Deg(theta1_deg, &sin_theta_1, &cos_theta_1);
+    CORDIC_SinCos_Deg(theta12_deg, &sin_theta_12, &cos_theta_12);
+
+    *x_out = -(FOC_LINK1_LENGTH * sin_theta_1 + FOC_LINK2_LENGTH * sin_theta_12);
+    *y_out = -(FOC_LINK1_LENGTH * cos_theta_1 + FOC_LINK2_LENGTH * cos_theta_12);
+
+    // 主关节速度
+    float dq1 = deg2rad(encoder_data.mechanical_speed);
+    float dq2 = deg2rad(foc_ctrl.motor2_data.motor2_mechanical_speed);
+
+    float j11 = -(FOC_LINK1_LENGTH * cos_theta_1 + FOC_LINK2_LENGTH * cos_theta_12);
+    float j12 = -(FOC_LINK2_LENGTH * cos_theta_12);
+    float j21 = (FOC_LINK1_LENGTH * sin_theta_1 + FOC_LINK2_LENGTH * sin_theta_12);
+    float j22 = (FOC_LINK2_LENGTH * sin_theta_12);
+
+    *x_out_speed = j11 * dq1 + j12 * dq2;
+    *y_out_speed = j21 * dq1 + j22 * dq2;
+}

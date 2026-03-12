@@ -1,6 +1,7 @@
 #include "foc_control.h"
 
 SCurve_Planner_t g_pos_planner;
+robot_cart_ctrl_out_t cart_out;
 
 static inline void foc_open_loop_control(float target_speed, float target_outq);
 static inline void foc_current_control(float target_d, float target_q);
@@ -37,6 +38,8 @@ void foc_debug(void)
     // g_flux_obs.theta_hat,
     // g_hfi_pll.i_term);
 
+    // debug_log("%.4f", foc_ctrl.target_position);
+    debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, foc_ctrl.target_position, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
     // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", g_hfi_pll.omega_est_filt, g_flux_obs.omega_filt, -encoder_data.electrical_speed, g_hfi_pll.theta_est, g_flux_obs.theta_hat);
 
     #if FOC_TEST_ENABLE // 扫频测试
@@ -67,7 +70,7 @@ void foc_start_init(void)
     foc_ctrl.out_d = 0.0f; // 设置d轴输出电压(开环用)
     foc_ctrl.target_q = 0.0f;  // 设置目标Q轴电流
     foc_ctrl.target_d = 0.0f;  // 设置目标D轴电流
-    foc_ctrl.target_position = -53.0f;  // 设置目标位置
+    foc_ctrl.target_position = 173.0f;  // 设置目标位置
     // 初始化电流环PI参数
     foc_current_pi_init(I_D_P_GAIN, I_Q_P_GAIN, I_I_GAIN, I_I_LIMIT);
     // 初始化速度环PI参数
@@ -437,13 +440,14 @@ static inline void foc_position_control(float target_position)
         foc_ctrl.shaped_t_p = target_position;
     #endif
 
-    float iq_fb = foc_position_pid_calculate(foc_ctrl.shaped_t_p, encoder_data.mechanical_angle);
+    float iq_fb = -foc_position_pid_calculate(foc_ctrl.shaped_t_p, encoder_data.mechanical_angle);
 
     // ===== 重力补偿前馈 =====
-    float theta = deg2rad(encoder_data.mechanical_angle);
-    const float K_G = 3.1f;
-    const float TH0 = MOTOR_LOW;
-    float iq_grav = K_G * sinf(theta - TH0);
+    float iq_grav = 0.0f;
+    // float theta = deg2rad(encoder_data.mechanical_angle);
+    // const float K_G = 0.38f;
+    // const float TH0 = MOTOR_LOW;
+    // iq_grav = K_G * sinf(theta - TH0);
 
     // 计算最终目标Q轴电流
     foc_ctrl.target_q = iq_fb + iq_grav;

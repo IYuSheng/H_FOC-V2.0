@@ -209,4 +209,13 @@ extern inline float32_t foc_speed_pid_calculate(float32_t target_speed, float32_
 */
 extern inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t current_position);
 
+/**
+ * @brief 计算双关节末端相对主轴平面坐标
+ * @param x_out 末端X坐标输出
+ * @param y_out 末端Y坐标输出
+ * @param x_out_speed 末端X坐标速度输出
+ * @param y_out_speed 末端Y坐标速度输出
+ */
+void foc_calc_end_effector_xy(float *x_out, float *y_out, float *x_out_speed, float *y_out_speed);
+
 #endif /* __FOC_CONVERSION_H */

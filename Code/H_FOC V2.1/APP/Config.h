@@ -20,7 +20,7 @@
 #define MOTOR_INDUCTANCE_Ld  0.000109f // d轴电感 (H)
 #define MOTOR_FLUX_LINKAGE   0.002481f   // 磁链 (Wb)
 
-#define MOTOR_LOW             -49.7f * PI / 180.0f   // 物理层面上的电机最低位置
+#define MOTOR_LOW             172.5f * PI / 180.0f   // 物理层面上的电机最低位置
 
 // -------------------------- FOC控制参数 --------------------------
 #define PWM_FREQ            20000.0f   // PWM频率 (Hz)，需与定时器配置匹配
@@ -56,9 +56,9 @@
 #define POSITION_P_GAIN     0.1f
 #define POSITION_I          0.0f
 #define POSITION_I_GAIN     (POSITION_I * POSITION_LOOP_DT) //KI = Ki * Ts(减小一个乘法)
-#define POSITION_D_GAIN     0.01f
+#define POSITION_D_GAIN     0.001f
 #define POSITION_I_LIMIT    0.08f
-#define POSITION_OUT_LIMIT  4.0f
+#define POSITION_OUT_LIMIT  2.5f
 #define POSITION_KV         8.0f
 #define POSITION_W_MAX      600.0f
 

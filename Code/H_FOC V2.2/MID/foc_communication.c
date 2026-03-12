@@ -7,17 +7,13 @@ joint_status_t remote_joint_status[JOINT_ID_MAX];  // 存储其他关节的状�
 /**
  * @brief 发送当前关节状态
  */
-void CAN_ReportStatus(float pos, float vel, float cur, float temp)
+void CAN_ReportStatus(float pos, float vel)
 {
     joint_status_t status;
     
-    // 浮点转定点（注意单位转换）
+    // 浮点转定点（当前只发送位置与速度）
     status.position = FLOAT_TO_FIX(pos);
     status.velocity = FLOAT_TO_FIX(vel);
-    status.current  = FLOAT_TO_FIX16(cur);
-    status.temperature = FLOAT_TO_FIX16(temp);
-    status.status = 0x0001;  // bit0: 使能状态
-    status.error_code = 0;
     
     FDCAN_SendJointStatus(g_local_node_id, &status);
 }
@@ -28,20 +24,23 @@ void CAN_ReportStatus(float pos, float vel, float cur, float temp)
 void CAN_ExecuteCommand(joint_control_t *cmd)
 {
     float target_pos = FIX_TO_FLOAT(cmd->target_pos);
-    float target_vel = FIX_TO_FLOAT(cmd->target_vel);
     float target_cur = FIX16_TO_FLOAT(cmd->target_cur);
-
-    debug_log("%.4f", target_pos);
+    // debug_log("pos=%.4f cur=%.2f mode=%u",
+    //           target_pos,
+    //           target_cur,
+    //           cmd->control_mode);
     
     switch (cmd->control_mode) {
-        case 0:  // 位置模式
-            // foc_set_position(target_pos);
+        case CONTROL_MODE_POSITION:
+            foc_ctrl.target_position = target_pos;
             break;
-        case 1:  // 速度模式
-            // foc_set_velocity(target_vel);
+        case CONTROL_MODE_SPEED:
+
             break;
-        case 2:  // 力矩模式（电流）
-            // foc_set_current(target_cur);
+        case CONTROL_MODE_CURRENT:
+            foc_ctrl.target_q = target_cur;
+            break;
+        default:
             break;
     }
 }
@@ -65,18 +64,14 @@ void FDCAN_RxCallback(can_frame_t *frame)
             break;
 
         case MSG_TYPE_STATUS:
+            if (src >= JOINT_ID_MAX) {
+                return;
+            }
             if (frame->len >= sizeof(joint_status_t))
             {
                 memcpy(&remote_joint_status[src], frame->data, sizeof(joint_status_t));
                     
                 joint_status_t *status = (joint_status_t*)frame->data;
-                // float pos_f = FIX_TO_FLOAT(status->position);
-                // float vel_f = FIX_TO_FLOAT(status->velocity);
-                // float cur_f = FIX16_TO_FLOAT(status->current);
-                // float temp_f = FIX16_TO_FLOAT(status->temperature);
-
-                // debug_log("%d, %.4f, %.4f, %.4f, %.4f",
-                //           src, pos_f, vel_f, cur_f, temp_f);
 
                 foc_ctrl.motor2_data.motor2_mechanical_angle = FIX_TO_FLOAT(status->position);
                 foc_ctrl.motor2_data.motor2_mechanical_speed = FIX_TO_FLOAT(status->velocity);
@@ -95,7 +90,7 @@ void CAN_Process(void)
 {
     // 处理接收队列
     FDCAN_ProcessRxQueue();
-    
+    FDCAN_Service();
 }
 
 /**

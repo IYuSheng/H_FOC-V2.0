@@ -191,10 +191,10 @@ static inline void pos_obs_reset(float theta_meas_deg)
     g_pos_obs.inited = 1;
 }
 
-// 50Hz 观测器带宽（你指定）
-#define POS_OBS_BW_HZ  (50.0f)
+// 观测器带宽
+#define POS_OBS_BW_HZ  (40.0f)
 
-// 由带宽生成增益（工程上常用的“二阶临界阻尼”形式）
+// 由带宽生成增益
 // 连续极点放在 s = -omega_obs (重复极点)，离散近似：
 // L1 ≈ 2*omega*dt, L2 ≈ omega^2*dt
 static inline void pos_obs_update(float theta_meas_deg, float dt)

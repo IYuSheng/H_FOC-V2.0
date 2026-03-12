@@ -20,12 +20,12 @@
 #include <math.h>
 
 #define FOC_SPEED_CONTROL_ENABLE            0   // 速度环使能
-#define FOC_POSITION_CONTROL_ENABLE         0   // 位置环使能
+#define FOC_POSITION_CONTROL_ENABLE         1   // 位置环使能
 #define FOC_PARAMETER_IDENTIFICATION_ENABLE 0   // 电机参数辨识使能
 #define FOC_COGGING_COMPENSATION_ENABLE     0   // 齿槽转矩补偿使能
 #define FLUX_OBSERVER_ENABLE                0   // 磁链观测器使能
-#define FOC_TEST_ENABLE                     0   // FOC测试使能（启用后会在foc_debug中输出扫频测试信号）
-#define HFI_ENABLE                          0   // 高频注入使能（启用后在foc_current_control_hfi中执行HFI相关处理）
+#define FOC_TEST_ENABLE                     0   // FOC扫频测试使能
+#define HFI_ENABLE                          0   // 高频注入使能
 #define HFI_STANDALONE_MODE                 0   // 1:纯HFI 0:HFI+观测器混合
 #define FOC_RESONANCE_ENABLE                0   // 阶跃测试使能
 #define FOC_SHAPER_ENABLE                   1   // 整形输入使能
@@ -38,9 +38,9 @@
 #define FOC_LINK2_ZERO                      172.5f  // 第二关节零位角度
 
 // XY笛卡尔PD控制参数
-#define FOC_XY_KP_X                        0.0f
+#define FOC_XY_KP_X                        20.5f
 #define FOC_XY_KD_X                        0.00f
-#define FOC_XY_KP_Y                        0.0f
+#define FOC_XY_KP_Y                        20.5f
 #define FOC_XY_KD_Y                        0.00f
 
 #define FOC_XY_FX_LIMIT                    2.0f   // N
@@ -104,4 +104,13 @@ void foc_calc_end_effector_xy(float *x_out, float *y_out, float *x_out_speed, fl
  */
 void foc_xy_pd_control(float x_ref, float y_ref, float vx_ref, float vy_ref, robot_cart_ctrl_out_t *out);
 
+/**
+ * @brief 2-link IK: solve joint mechanical angles (deg) from target (x,y)
+ * @param x_ref target x (m)
+ * @param y_ref target y (m)
+ * @param joint1_target_deg out: joint1 mechanical angle (deg)
+ * @param joint2_target_deg out: joint2 mechanical angle (deg)
+ * @return 1=success, 0=unreachable or invalid args
+ */
+uint8_t foc_xy_inverse_kinematics(float x_ref, float y_ref, float *joint1_target_deg, float *joint2_target_deg);
 #endif /* __FOC_CONTROL_H */

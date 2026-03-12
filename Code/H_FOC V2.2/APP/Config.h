@@ -15,9 +15,9 @@
 // -------------------------- 电机参数 -------------------------- 
 #define MOTOR_POLE_PAIRS     11       // 电机极对数
 #define MOTOR_RESISTANCE     0.338f    // 相电阻 (欧姆)
-#define MOTOR_INDUCTANCE     0.000145f  // 相电感 (H)
-#define MOTOR_INDUCTANCE_Lq  0.000182f // q轴电感 (H)
-#define MOTOR_INDUCTANCE_Ld  0.000109f // d轴电感 (H)
+#define MOTOR_INDUCTANCE     0.000113f  // 相电感 (H)
+#define MOTOR_INDUCTANCE_Lq  0.000140f // q轴电感 (H)
+#define MOTOR_INDUCTANCE_Ld  0.000086f // d轴电感 (H)
 #define MOTOR_FLUX_LINKAGE   0.002481f   // 磁链 (Wb)
 
 #define MOTOR_LOW             -53.7f * PI / 180.0f   // 物理层面上的电机最低位置
@@ -31,12 +31,12 @@
 
 // -------------------------- PI调节器参数 --------------------------
 // 电流环PI
-#define CURRENT_LOOP_BANDWIDTH    800.0f      // 电流环带宽 (Hz)
 #define CURRENT_LOOP_COUNT        PWM_FREQ
 #define CURRENT_LOOP_DT           (1.0f / CURRENT_LOOP_COUNT)  // 电流环调用周期 (单位：s)
 #define I_D_P_GAIN                (MOTOR_INDUCTANCE_Ld / (3 * PWM_PERIOD_S)) //Kp = Ld / (3*Ts)
 #define I_Q_P_GAIN                (MOTOR_INDUCTANCE_Lq / (3 * PWM_PERIOD_S)) //Kp = Lq / (3*Ts)
 #define I_I_GAIN                  ((MOTOR_RESISTANCE / (3 * PWM_PERIOD_S)) * CURRENT_LOOP_DT) //KI = (Rs / (3*Ts)) * Ts(减小一个乘法)
+#define CURRENT_LOOP_BANDWIDTH    (I_Q_P_GAIN / (2 * PI * MOTOR_INDUCTANCE_Lq))      // 电流环带宽 (Hz) 1061
 #define I_I_LIMIT                 0.2f
 
 // 速度环PI

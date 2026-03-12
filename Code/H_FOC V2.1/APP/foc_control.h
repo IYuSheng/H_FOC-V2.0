@@ -20,7 +20,7 @@
 #include <math.h>
 
 #define FOC_SPEED_CONTROL_ENABLE            0   // 速度环使能
-#define FOC_POSITION_CONTROL_ENABLE         0   // 位置环使能
+#define FOC_POSITION_CONTROL_ENABLE         1   // 位置环使能
 #define FOC_PARAMETER_IDENTIFICATION_ENABLE 0   // 电机参数辨识使能
 #define FOC_COGGING_COMPENSATION_ENABLE     0   // 齿槽转矩补偿使能
 #define FLUX_OBSERVER_ENABLE                0   // 磁链观测器使能
@@ -29,6 +29,17 @@
 #define HFI_STANDALONE_MODE                 0   // 1:纯HFI 0:HFI+观测器混合
 #define FOC_RESONANCE_ENABLE                0   // 阶跃测试使能
 #define FOC_SHAPER_ENABLE                   1   // 整形输入使能
+
+typedef struct
+{
+    float x, y;
+    float vx, vy;
+    float fx, fy;
+    float tau1, tau2;
+    float iq1, iq2;
+} robot_cart_ctrl_out_t;
+
+extern robot_cart_ctrl_out_t cart_out;
 
 typedef enum {
     SENSORLESS_STATE_HFI,

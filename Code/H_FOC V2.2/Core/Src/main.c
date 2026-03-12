@@ -119,7 +119,7 @@ int main(void)
       {
         foc_task.task_sys_common = 0;
         // CAN数据发送
-        CAN_ReportStatus(encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.abc_dq.current_q, foc_voltage_data.temp);
+        CAN_ReportStatus(encoder_data.mechanical_angle, encoder_data.mechanical_speed);
         // CAN数据处理
         CAN_Process();
         // foc打印调试任务
