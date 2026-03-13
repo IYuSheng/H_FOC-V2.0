@@ -307,6 +307,20 @@ int8_t FDCAN_SendJointStatus(uint8_t joint_id, joint_status_t *status)
 }
 
 /**
+ * @brief 发送关节状态（发送给主节点）
+ * @param joint_id 本关节ID
+ * @param status   状态数据结构
+ * @return 0:成功
+ */
+int8_t FDCAN_SendJointStatus_Master(uint8_t joint_id, joint_status_t *status)
+{
+    int8_t ret = FDCAN_SendPacket(joint_id, JOINT_ID_MASTER, MSG_TYPE_STATUS,
+                           (uint8_t*)status, sizeof(joint_status_t));
+
+    return ret;
+}
+
+/**
  * @brief 发送控制指令（主节点调用）
  * @param dst_id 目标关节ID
  * @param cmd    控制指令结构
@@ -531,7 +545,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* fdcanHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* FDCAN1 interrupt Init */
-    HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 3, 0);
     HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
   /* USER CODE BEGIN FDCAN1_MspInit 1 */
 

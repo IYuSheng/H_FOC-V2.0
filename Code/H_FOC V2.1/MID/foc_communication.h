@@ -5,21 +5,25 @@
 #include "fdcan.h"
 #include "foc_conversion.h"
 
-extern uint8_t g_local_node_id;  // 本关节ID
+extern uint8_t g_local_node_id;  // 本关节 ID
 
-/**
- * @brief FOC设置外部参数
- */
+typedef struct
+{
+    float target_current;
+    float target_angle;
+    float target_velocity;
+    float target_acceleration;
+    float target_jerk;
+    float stiffness;
+    float damping;
+    uint8_t control_mode;
+    uint8_t enabled;
+} canfd_joint_cmd_t;
+
+extern canfd_joint_cmd_t g_canfd_joint_cmd;
+
 void foc_control_set(void);
-
-/**
- * @brief 发送当前关节状态
- */
-void CAN_ReportStatus(float pos, float vel);
-
-/**
- * @brief 主循环调用（1ms周期）
- */
+void CAN_ReportStatus(void);
 void CAN_Process(void);
 
 #endif // FOC_COMMUNICATION_H

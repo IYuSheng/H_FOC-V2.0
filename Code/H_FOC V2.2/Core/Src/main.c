@@ -118,8 +118,8 @@ int main(void)
       if(foc_task.task_sys_common)
       {
         foc_task.task_sys_common = 0;
-        // CAN数据发送
-        CAN_ReportStatus(encoder_data.mechanical_angle, encoder_data.mechanical_speed);
+        // CAN数据发送至主节点
+        CAN_ReportStatus();
         // CAN数据处理
         CAN_Process();
         // foc打印调试任务

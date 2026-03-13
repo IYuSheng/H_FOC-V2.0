@@ -7,7 +7,8 @@ static inline void foc_open_loop_control(float target_speed, float target_outq);
 static inline void foc_current_control(float target_d, float target_q);
 static inline void foc_speed_control(float target_speed);
 static inline void foc_position_control(float target_position);
-static inline void foc_current_control_hfi(float target_d, float target_q);static inline float foc_clampf(float val, float min_val, float max_val);
+static inline void foc_mit_control(void);
+static inline void foc_current_control_hfi(float target_d, float target_q);
 
 /**
  * @brief FOC打印调试信息
@@ -23,7 +24,7 @@ void foc_debug(void)
     // foc_ctrl.Te = 1.5f * MOTOR_POLE_PAIRS * (MOTOR_FLUX_LINKAGE * foc_ctrl.abc_dq.current_q);
     // debug_log("%.4f", foc_ctrl.Te);
 
-    debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
+    debug_log("%.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, encoder_data.mechanical_accsd);
     
     #if FOC_TEST_ENABLE // 扫频测试
     // q轴正弦波扫频输出
@@ -118,6 +119,11 @@ void foc_start_init(void)
  */
 void foc_control(void)
 {
+    if (g_canfd_joint_cmd.enabled != 0U) {
+        foc_mit_control();
+        return;
+    }
+
     #if FOC_RESONANCE_ENABLE
     static uint16_t count = 0;
     float iq_fb;
@@ -228,13 +234,15 @@ void foc_control(void)
 
     #else
         #if FOC_SPEED_CONTROL_ENABLE
-        // 速度环
-        foc_speed_control(foc_ctrl.target_speed);
+            // 速度环
+            foc_speed_control(foc_ctrl.target_speed);
         #endif
         #if FOC_POSITION_CONTROL_ENABLE
-        // 位置环
-        foc_position_control(foc_ctrl.target_position);
-        // foc_position_MIT_control(foc_ctrl.target_position);
+            // 位置环
+            foc_position_control(foc_ctrl.target_position);
+        #endif
+        #if FOC_MIT_CONTROL_ENABLE
+            foc_mit_control();
         #endif
     #endif
 }
@@ -365,6 +373,82 @@ static inline void foc_current_control(float target_d, float target_q)
 
     // 输出PWM到定时器 
     bsp_pwm_set_duty_three_phase(svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
+}
+
+/**
+ * @brief MIT电机控制
+ */
+static inline void foc_mit_control(void)
+{
+    static uint8_t last_control_mode = 0xFFU;
+    static float last_target_angle = 0.0f;
+    static float last_target_velocity = 0.0f;
+    static float last_target_acceleration = 0.0f;
+    static float last_target_jerk = 0.0f;
+    float ref_angle = g_canfd_joint_cmd.target_angle;
+    float ref_velocity = g_canfd_joint_cmd.target_velocity;
+    float pos_err;
+    float vel_err;
+    float plan_vmax;
+    float plan_amax;
+    float plan_jmax;
+
+    switch (g_canfd_joint_cmd.control_mode) {
+        case CONTROL_MODE_S_CURVE:
+            plan_vmax = fabsf(g_canfd_joint_cmd.target_velocity);
+            plan_amax = fabsf(g_canfd_joint_cmd.target_acceleration);
+            plan_jmax = fabsf(g_canfd_joint_cmd.target_jerk);
+
+            if ((plan_vmax > 1e-6f) && (plan_amax > 1e-6f) && (plan_jmax > 1e-6f)) {
+                if ((last_control_mode != CONTROL_MODE_S_CURVE) ||
+                    (fabsf(g_canfd_joint_cmd.target_angle - last_target_angle) > 1e-4f) ||
+                    (fabsf(plan_vmax - last_target_velocity) > 1e-4f) ||
+                    (fabsf(plan_amax - last_target_acceleration) > 1e-4f) ||
+                    (fabsf(plan_jmax - last_target_jerk) > 1e-4f)) {
+                    float plan_start = g_pos_planner.is_busy ? g_pos_planner.current_pos : encoder_data.mechanical_angle;
+
+                    s_curve_planner_init(&g_pos_planner, plan_vmax, plan_amax, plan_jmax, POSITION_LOOP_DT);
+                    g_pos_planner.current_pos = plan_start;
+                    g_pos_planner.current_vel = 0.0f;
+                    g_pos_planner.current_acc = 0.0f;
+                    (void)s_curve_set_target(&g_pos_planner, plan_start, g_canfd_joint_cmd.target_angle);
+
+                    last_target_angle = g_canfd_joint_cmd.target_angle;
+                    last_target_velocity = plan_vmax;
+                    last_target_acceleration = plan_amax;
+                    last_target_jerk = plan_jmax;
+                }
+
+                ref_angle = s_curve_update(&g_pos_planner);
+                ref_velocity = g_pos_planner.current_vel;
+            }
+            break;
+
+        case CONTROL_MODE_TRAPEZOIDAL:
+            /* TODO: 梯形加减速模式后续在这里完善，当前先按直接目标控制处理。 */
+            g_pos_planner.state = S_CURVE_IDLE;
+            g_pos_planner.is_busy = 0U;
+            break;
+
+        case CONTROL_MODE_NORMAL:
+        default:
+            g_pos_planner.state = S_CURVE_IDLE;
+            g_pos_planner.is_busy = 0U;
+            break;
+    }
+
+    last_control_mode = g_canfd_joint_cmd.control_mode;
+
+    pos_err = ref_angle - encoder_data.mechanical_angle;
+    vel_err = ref_velocity - encoder_data.mechanical_speed;
+    float iq_cmd = g_canfd_joint_cmd.target_current +
+                   g_canfd_joint_cmd.stiffness * pos_err +
+                   g_canfd_joint_cmd.damping * vel_err;
+
+    foc_ctrl.target_position = ref_angle;
+    foc_ctrl.target_speed = ref_velocity;
+    foc_ctrl.target_d = 0.0f;
+    foc_ctrl.target_q = iq_cmd;
 }
 
 /**
@@ -666,3 +750,5 @@ static inline void foc_current_control_hfi(float target_d, float target_q)
     svpwm_duty_calc(&svpwm);
     bsp_pwm_set_duty_three_phase(svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
 }
+
+

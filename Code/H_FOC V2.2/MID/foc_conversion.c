@@ -397,14 +397,6 @@ inline float32_t foc_position_pid_calculate(float32_t target_position, float32_t
     
     // 计算误差（目标 - 当前）
     error = target_position - current_position;
-    // if(fabs(error) < 1.0f)
-    // {
-    //     position_pid.kd = POSITION_D_GAIN * fabs(error) / 1.0f;
-    // }
-    // else
-    // {
-    //     position_pid.kd = POSITION_D_GAIN;
-    // }
 
     position_pid.w_ref = POSITION_KV * error; // 期望速度
     

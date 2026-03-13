@@ -1,0 +1,7 @@
+CompileFlags:
+  Add:
+    - -ID:\Keilv5\ARM\ARMCLANG/include
+    - -ID:\Keilv5\ARM\ARMCLANG/include/libcxx
+  Remove: []
+  CompilationDatabase: ./build/H_FOC V2.0
+  Compiler: D:\Keilv5\ARM\ARMCLANG\bin\armclang.exe

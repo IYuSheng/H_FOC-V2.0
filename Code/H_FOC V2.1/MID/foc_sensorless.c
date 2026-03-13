@@ -42,8 +42,8 @@ void flux_observer_update(FluxObserver_t *obs, float u_alpha, float u_beta,
     float y2 = u_beta  - FLUX_R_S * i_beta;
     
     // 计算磁链误差 eta = x - Ls*i
-    float eta1 = obs->x1 - FLUX_L_S * i_alpha;
-    float eta2 = obs->x2 - FLUX_L_S * i_beta;
+    float eta1 = obs->x1 - MOTOR_INDUCTANCE_Ld * i_alpha;  // 转子磁链(气隙磁链)
+    float eta2 = obs->x2 - MOTOR_INDUCTANCE_Lq * i_beta;
     
     // 计算误差幅值平方 ||eta||^2
     float eta_norm_sq = eta1*eta1 + eta2*eta2;

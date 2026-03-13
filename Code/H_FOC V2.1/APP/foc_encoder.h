@@ -78,20 +78,15 @@ typedef struct {
     float    electrical_angle;          // 电角度（0~360°，需结合电机极对数计算）
     float    electrical_speed;          // 电角速度（0~2π rad/s）
     float    mechanical_speed;          // 机械角速度（°/s）
+    float    mechanical_accsd;          // 机械角加速度(°/s^2)
     uint8_t  error_flag;                // 错误标志（0=无错误，1=有错误）
     uint8_t  agc_value;                 // AGC 值（反映磁场强度：0=强，255=弱）
 } encoder_data_t;
 
-// ================= 机械侧降阶隆博戈(二阶)观测器 =================
-// 模型： theta_dot = omega, omega_dot = 0
-// 观测器：
-//  theta_hat(k+1) = theta_hat(k) + omega_hat(k)*dt + L1*e
-//  omega_hat(k+1) = omega_hat(k) + L2*e
-//  e = theta_meas - (theta_hat(k) + omega_hat(k)*dt)
-
 typedef struct {
     float theta_hat;   // 内部角度估计(单位: deg)，仅用于观测器
     float omega_hat;   // 估计速度(单位: deg/s)，给控制用
+    float alpha_hat;   // 估计角加速度，单位: deg/s^2
     uint8_t inited;
 } pos_luenberger_t;
 

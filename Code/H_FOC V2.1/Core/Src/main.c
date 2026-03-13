@@ -121,7 +121,7 @@ int main(void)
         // foc打坰调试任务
         foc_debug();
         // CAN数杮坑�?
-        CAN_ReportStatus(encoder_data.mechanical_angle, encoder_data.mechanical_speed);
+        CAN_ReportStatus();
         // CAN数杮处睆
         CAN_Process();
       }

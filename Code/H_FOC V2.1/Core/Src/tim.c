@@ -61,7 +61,7 @@ void MX_TIM8_Init(void)
   TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM2;
   TIM_OC_InitStruct.OCState = LL_TIM_OCSTATE_DISABLE;
   TIM_OC_InitStruct.OCNState = LL_TIM_OCSTATE_DISABLE;
-  TIM_OC_InitStruct.CompareValue = PWM_PERIOD - 20 - 1700;          // 在ADC触发前1700个计数值处触发
+  TIM_OC_InitStruct.CompareValue = PWM_PERIOD - 20 - 2000;          // 在ADC触发前2000个计数值处触发
   LL_TIM_OC_Init(TIM8, LL_TIM_CHANNEL_CH4, &TIM_OC_InitStruct);
   
 

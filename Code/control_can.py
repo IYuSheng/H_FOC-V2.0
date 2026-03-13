@@ -5,8 +5,8 @@ Dual-joint arm real-time monitor/control over CAN FD.
 
 Protocol mapping follows current Core/Inc/fdcan.h:
 - CAN ID (11-bit): (src << 8) | (dst << 4) | msg_type
-- STATUS frame payload (64B): joint_status_t structure
-- CONTROL frame payload (64B): joint_control_t structure
+- STATUS frame payload: 5 x int32_t
+- CONTROL frame payload: 7 x int32_t + 1 x uint8_t
 """
 
 import argparse
@@ -56,24 +56,48 @@ class Config:
     MSG_TYPE_CONTROL = 0x1
 
     # Control mode (必须匹配 fdcan.h)
-    CONTROL_MODE_TORQUE = 0
-    CONTROL_MODE_POSITION = 1
-    CONTROL_MODE = CONTROL_MODE_TORQUE
+    CONTROL_MODE_NORMAL = 0
+    CONTROL_MODE_TRAPEZOIDAL = 1
+    CONTROL_MODE_S_CURVE = 2
+    CONTROL_MODE = CONTROL_MODE_S_CURVE
 
     # 定点数缩放比例（必须匹配你的STM32代码）
     SCALE_32 = 1e-5  # 32位定点数缩放
-    SCALE_16 = 1e-2  # 16位定点数缩放
+
+    # MIT控制参数默认值与界面范围
+    CMD_STIFFNESS_DEFAULT_J1 = 0.6
+    CMD_STIFFNESS_DEFAULT_J2 = 0.1
+    CMD_STIFFNESS_MIN = 0.0
+    CMD_STIFFNESS_MAX = 1.0
+    CMD_DAMPING_DEFAULT_J1 = 0.015
+    CMD_DAMPING_DEFAULT_J2 = 0.001
+    CMD_DAMPING_MIN = 0.0
+    CMD_DAMPING_MAX = 0.02
+    CMD_DAMPING_MAX_J1 = 0.02
+    CMD_DAMPING_MAX_J2 = 0.005
+
+    # 轨迹模式参数（梯形 / S 曲线）
+    PROFILE_VELOCITY_MIN_DEG_S = 5.0
+    PROFILE_VELOCITY_MAX_DEG_S = 300.0
+    PROFILE_VELOCITY_DEFAULT_DEG_S = 90.0
+    PROFILE_ACCEL_MIN_DEG_S2 = 10.0
+    PROFILE_ACCEL_MAX_DEG_S2 = 20_000.0
+    PROFILE_ACCEL_DEFAULT_DEG_S2 = 2_000.0
+    PROFILE_JERK_MIN_DEG_S3 = 10.0
+    PROFILE_JERK_MAX_DEG_S3 = 50_000.0
+    PROFILE_JERK_DEFAULT_DEG_S3 = 5_000.0
+
+    # 重力补偿前馈（单位：A）
+    GRAVITY_FF_J1 = 3.1
+    GRAVITY_FF_J2 = 0.38
+    GRAVITY_OFFSET_J1_DEG = -53.7
+    GRAVITY_OFFSET_J2_DEG = 172.5
 
     # Loop and timeout
     LOOP_DT = 0.001
     RX_STALE_SEC = 0.05
     RX_THREAD_RECV_TIMEOUT_SEC = 0.001
     UI_UPDATE_MS = 50
-    # 位置控制发送优化：目标不变且逆解无明显改进时，不重复发送
-    POS_TARGET_DEADBAND_M = 0.0005
-    POS_CMD_DEADBAND_DEG = 0.05
-    POS_IK_IMPROVE_DEG = 0.2
-    POS_KEEPALIVE_SEC = 0.5
 
     # Kinematics / controller
     L1, L2 = 0.07748, 0.0625
@@ -112,6 +136,8 @@ class Ctrl:
     fy: float = 0.0
     iq1: float = 0.0
     iq2: float = 0.0
+    grav1: float = 0.0
+    grav2: float = 0.0
 
 
 @dataclass
@@ -120,6 +146,7 @@ class MotorStatus:
     w: float = 0.0
     cur: float = 0.0
     temp: float = 0.0
+    acc: float = 0.0
     status: int = 0
     error: int = 0
     t_rx: float = 0.0
@@ -153,25 +180,17 @@ def float_to_fix32(v: float) -> int:
     return max(-2147483648, min(2147483647, raw))
 
 
-def float_to_fix16(v: float) -> int:
-    """16位定点数转换"""
-    raw = int(v / Config.SCALE_16)
-    return max(-32768, min(32767, raw))
-
-
 def fix32_to_float(v: int) -> float:
     return float(v) * Config.SCALE_32
 
 
-def fix16_to_float(v: int) -> float:
-    return float(v) * Config.SCALE_16
-
-
 def control_mode_name(mode: int) -> str:
-    if mode == Config.CONTROL_MODE_TORQUE:
-        return "torque"
-    if mode == Config.CONTROL_MODE_POSITION:
-        return "position"
+    if mode == Config.CONTROL_MODE_NORMAL:
+        return "normal"
+    if mode == Config.CONTROL_MODE_TRAPEZOIDAL:
+        return "trapezoidal"
+    if mode == Config.CONTROL_MODE_S_CURVE:
+        return "s_curve"
     return f"unknown({mode})"
 
 
@@ -212,6 +231,19 @@ def pd_control(c: Cart, tgt: Cart, jac: Tuple[float, float, float, float]):
     iq1 = clamp(tau1 / Config.KT, -Config.IQ_MAX, Config.IQ_MAX)
     iq2 = clamp(tau2 / Config.KT, -Config.IQ_MAX, Config.IQ_MAX)
     return Ctrl(fx, fy, iq1, iq2)
+
+
+def gravity_compensation_currents(j: Joint) -> Tuple[float, float]:
+    """
+    使用当前机械角计算两个关节的重力补偿前馈电流。
+    J1 采用带机械零点偏置的绝对姿态正弦补偿；
+    J2 采用第二连杆带偏置后的绝对姿态正弦补偿，能够随机构姿态变化。
+    """
+    theta1 = math.radians(j.th1 - Config.GRAVITY_OFFSET_J1_DEG)
+    theta2 = math.radians(j.th2 - Config.GRAVITY_OFFSET_J2_DEG)
+    iq_grav1 = Config.GRAVITY_FF_J1 * math.sin(theta1)
+    iq_grav2 = Config.GRAVITY_FF_J2 * math.sin(theta1 + theta2)
+    return iq_grav1, iq_grav2
 
 
 def _wrap_deg_err(err_deg: float) -> float:
@@ -298,20 +330,17 @@ class CANComm:
         self._rx_thread: Optional[threading.Thread] = None
 
     def _build_status_filters(self):
-        # Match STATUS from motor1/motor2, ignore dst nibble.
-        mask_src_and_type = 0xF0F
-        return [
-            {
-                "can_id": can_id_make(Config.MOTOR1_ID, 0x0, Config.MSG_TYPE_STATUS),
-                "can_mask": mask_src_and_type,
-                "extended": False,
-            },
-            {
-                "can_id": can_id_make(Config.MOTOR2_ID, 0x0, Config.MSG_TYPE_STATUS),
-                "can_mask": mask_src_and_type,
-                "extended": False,
-            },
-        ]
+        filters = []
+        for src_id in (Config.MOTOR1_ID, Config.MOTOR2_ID):
+            for dst_id in (Config.MASTER_ID, Config.BROADCAST_ID):
+                filters.append(
+                    {
+                        "can_id": can_id_make(src_id, dst_id, Config.MSG_TYPE_STATUS),
+                        "can_mask": 0xFFF,
+                        "extended": False,
+                    }
+                )
+        return filters
 
     def _start_rx_thread(self):
         self._rx_running = True
@@ -409,21 +438,19 @@ class CANComm:
         can_id = msg.arbitration_id
         msg_type = can_id_get_type(can_id)
         src = can_id_get_src(can_id)
-        _dst = can_id_get_dst(can_id)
+        dst = can_id_get_dst(can_id)
 
         if msg_type != Config.MSG_TYPE_STATUS:
             return
         if src not in (Config.MOTOR1_ID, Config.MOTOR2_ID):
             return
-        
-        # CAN FD支持最大64字节，但你的status结构体可能更小
-        # 这里假设至少8字节有效数据（position + velocity）
-        if len(msg.data) < 8:
+        if dst not in (Config.MASTER_ID, Config.BROADCAST_ID):
+            return
+        if len(msg.data) < 20:
             return
 
         try:
-            # 解析前8字节为position和velocity（32位定点数）
-            p_fix, v_fix = struct.unpack("<ii", bytes(msg.data[:8]))
+            p_fix, v_fix, cur_fix, temp_fix, acc_fix = struct.unpack("<iiiii", bytes(msg.data[:20]))
         except struct.error:
             return
 
@@ -432,8 +459,9 @@ class CANComm:
             self.state[src] = MotorStatus(
                 th=fix32_to_float(p_fix),
                 w=fix32_to_float(v_fix),
-                cur=0.0,
-                temp=0.0,
+                cur=fix32_to_float(cur_fix),
+                temp=fix32_to_float(temp_fix),
+                acc=fix32_to_float(acc_fix),
                 status=0,
                 error=0,
                 t_rx=now,
@@ -450,6 +478,7 @@ class CANComm:
                 w=s.w,
                 cur=s.cur,
                 temp=s.temp,
+                acc=s.acc,
                 status=s.status,
                 error=s.error,
                 t_rx=s.t_rx,
@@ -468,45 +497,89 @@ class CANComm:
 
         return Joint(th1=s1.th, w1=s1.w, th2=s2.th, w2=s2.w)
 
-    def _send_control(self, dst_id: int, target_pos_deg: float, target_cur_a: float, control_mode: int) -> bool:
+    def _send_control(
+        self,
+        dst_id: int,
+        target_pos_deg: float,
+        target_cur_a: float,
+        target_vel_deg_s: float,
+        target_acc_deg_s2: float,
+        target_jerk_deg_s3: float,
+        stiffness: float,
+        damping: float,
+        control_mode: int,
+    ) -> bool:
         if self.bus is None or can is None:
             return False
 
         target_cur_a = clamp(target_cur_a, -Config.IQ_MAX, Config.IQ_MAX)
-        
-        # 构建控制帧payload（CAN FD支持64字节，但控制指令可能只需要部分）
-        # 根据你的joint_control_t结构体调整
+
         payload = struct.pack(
-            "<ihh",
-            float_to_fix32(target_pos_deg),       # target_pos (32位定点)
-            float_to_fix16(target_cur_a),         # target_cur (16位定点)
-            int(control_mode),                    # control_mode (16位)
+            "<7iB",
+            float_to_fix32(target_cur_a),
+            float_to_fix32(target_pos_deg),
+            float_to_fix32(target_vel_deg_s),
+            float_to_fix32(target_acc_deg_s2),
+            float_to_fix32(target_jerk_deg_s3),
+            float_to_fix32(stiffness),
+            float_to_fix32(damping),
+            int(control_mode) & 0xFF,
         )
-        
+
         can_id = can_id_make(Config.MASTER_ID, dst_id, Config.MSG_TYPE_CONTROL)
-        
+
         try:
-            # CAN FD消息：启用is_fd和bitrate_switch
             msg = can.Message(
                 arbitration_id=can_id,
                 is_extended_id=False,
                 data=payload,
-                is_fd=True,  # 标记为CAN FD帧
-                bitrate_switch=True,  # 启用比特率切换（BRS）
+                is_fd=True,
+                bitrate_switch=True,
             )
             self.bus.send(msg, timeout=0.0)
             self.tx_frames += 1
             return True
-        except Exception as e:
+        except Exception:
             self.err_frames += 1
             return False
 
-    def write(self, j: Joint, iq1: float, iq2: float) -> bool:
+    def write(
+        self,
+        j: Joint,
+        iq1: float,
+        iq2: float,
+        control_mode: int,
+        target_velocity_deg_s: Tuple[float, float],
+        target_acceleration_deg_s2: Tuple[float, float],
+        target_jerk_deg_s3: Tuple[float, float],
+        stiffness: Tuple[float, float],
+        damping: Tuple[float, float],
+    ) -> bool:
         if not Config.ENABLE_CONTROL_TX:
             return True
 
-        ok1 = self._send_control(Config.MOTOR1_ID, j.th1, iq1, Config.CONTROL_MODE)
-        ok2 = self._send_control(Config.MOTOR2_ID, j.th2, iq2, Config.CONTROL_MODE)
+        ok1 = self._send_control(
+            Config.MOTOR1_ID,
+            j.th1,
+            iq1,
+            target_velocity_deg_s[0],
+            target_acceleration_deg_s2[0],
+            target_jerk_deg_s3[0],
+            stiffness[0],
+            damping[0],
+            control_mode,
+        )
+        ok2 = self._send_control(
+            Config.MOTOR2_ID,
+            j.th2,
+            iq2,
+            target_velocity_deg_s[1],
+            target_acceleration_deg_s2[1],
+            target_jerk_deg_s3[1],
+            stiffness[1],
+            damping[1],
+            control_mode,
+        )
         return ok1 and ok2
 
 
@@ -725,18 +798,29 @@ class CompactSlider(QtWidgets.QWidget):
         self.slider.valueChanged.connect(self._on_slider_changed)
         
     def _on_slider_changed(self, val):
-        real_val = self.min_val + (val / 1000.0) * (self.max_val - self.min_val)
+        span = self.max_val - self.min_val
+        if abs(span) <= 1e-12:
+            real_val = self.min_val
+        else:
+            real_val = self.min_val + (val / 1000.0) * span
         self.value_label.setText(f"{real_val:.{self.decimals}f}{self.suffix}")
         self.valueChanged.emit(real_val)
         
     def set_value(self, val):
         val = clamp(val, self.min_val, self.max_val)
-        slider_val = int((val - self.min_val) / (self.max_val - self.min_val) * 1000)
+        span = self.max_val - self.min_val
+        if abs(span) <= 1e-12:
+            slider_val = 0
+        else:
+            slider_val = int((val - self.min_val) / span * 1000)
         self.slider.setValue(slider_val)
         self.value_label.setText(f"{val:.{self.decimals}f}{self.suffix}")
         
     def get_value(self):
-        val = self.min_val + (self.slider.value() / 1000.0) * (self.max_val - self.min_val)
+        span = self.max_val - self.min_val
+        if abs(span) <= 1e-12:
+            return self.min_val
+        val = self.min_val + (self.slider.value() / 1000.0) * span
         return val
         
     # 自定义信号
@@ -822,6 +906,30 @@ class Visualizer(QtWidgets.QMainWindow):
                 padding: 2px 8px;
                 font-size: 11px;
                 font-weight: 600;
+            }
+            QComboBox {
+                min-height: 30px;
+                padding: 4px 10px;
+                background: #fffaf6;
+                color: #5a4a42;
+                border: 1px solid #d9cabc;
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            QComboBox:disabled {
+                background: #f3ece6;
+                color: #a99688;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 24px;
+            }
+            QComboBox QAbstractItemView {
+                background: #ffffff;
+                border: 1px solid #e8ddd4;
+                selection-background-color: #f5ebe3;
+                selection-color: #c45c26;
             }
             QPushButton {
                 background: #e67e45;
@@ -912,7 +1020,7 @@ class Visualizer(QtWidgets.QMainWindow):
         ctrl_panel.setObjectName("Panel")
         ctrl_layout = QtWidgets.QHBoxLayout(ctrl_panel)
         ctrl_layout.setContentsMargins(16, 12, 16, 12)
-        ctrl_layout.setSpacing(20)
+        ctrl_layout.setSpacing(16)
 
         # 左侧：关节控制组
         joint_group = QtWidgets.QWidget()
@@ -948,8 +1056,149 @@ class Visualizer(QtWidgets.QMainWindow):
         line = QtWidgets.QFrame()
         line.setFrameShape(QtWidgets.QFrame.VLine)
         line.setStyleSheet("color: #e8ddd4;")
-        line.setFixedHeight(60)
+        line.setFixedHeight(120)
         ctrl_layout.addWidget(line)
+
+        # 中间：轨迹模式控制
+        profile_group = QtWidgets.QWidget()
+        profile_layout = QtWidgets.QVBoxLayout(profile_group)
+        profile_layout.setContentsMargins(0, 0, 0, 0)
+        profile_layout.setSpacing(8)
+
+        mode_row = QtWidgets.QHBoxLayout()
+        mode_label = QtWidgets.QLabel("控制模式")
+        mode_label.setStyleSheet("color: #5a4a42; font-size: 12px; font-weight: 500; min-width: 60px;")
+        self.cmb_control_mode = QtWidgets.QComboBox()
+        for text, mode in (
+            ("正常控制", Config.CONTROL_MODE_NORMAL),
+            ("梯形加减速", Config.CONTROL_MODE_TRAPEZOIDAL),
+            ("S加减速", Config.CONTROL_MODE_S_CURVE),
+        ):
+            self.cmb_control_mode.addItem(text, mode)
+        self.cmb_control_mode.setFixedWidth(140)
+        mode_row.addWidget(mode_label)
+        mode_row.addWidget(self.cmb_control_mode)
+        mode_row.addStretch()
+        profile_layout.addLayout(mode_row)
+
+        self.sl_profile_vel_j1 = CompactSlider(
+            "J1速度",
+            Config.PROFILE_VELOCITY_MIN_DEG_S,
+            Config.PROFILE_VELOCITY_MAX_DEG_S,
+            Config.PROFILE_VELOCITY_DEFAULT_DEG_S,
+            decimals=0,
+            suffix="°/s",
+        )
+        self.sl_profile_vel_j1.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_vel_j1)
+
+        self.sl_profile_acc_j1 = CompactSlider(
+            "J1加速度",
+            Config.PROFILE_ACCEL_MIN_DEG_S2,
+            Config.PROFILE_ACCEL_MAX_DEG_S2,
+            Config.PROFILE_ACCEL_DEFAULT_DEG_S2,
+            decimals=0,
+            suffix="°/s²",
+        )
+        self.sl_profile_acc_j1.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_acc_j1)
+
+        self.sl_profile_jerk_j1 = CompactSlider(
+            "J1加加速度",
+            Config.PROFILE_JERK_MIN_DEG_S3,
+            Config.PROFILE_JERK_MAX_DEG_S3,
+            Config.PROFILE_JERK_DEFAULT_DEG_S3,
+            decimals=0,
+            suffix="°/s³",
+        )
+        self.sl_profile_jerk_j1.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_jerk_j1)
+
+        self.sl_profile_vel_j2 = CompactSlider(
+            "J2速度",
+            Config.PROFILE_VELOCITY_MIN_DEG_S,
+            Config.PROFILE_VELOCITY_MAX_DEG_S,
+            Config.PROFILE_VELOCITY_DEFAULT_DEG_S,
+            decimals=0,
+            suffix="°/s",
+        )
+        self.sl_profile_vel_j2.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_vel_j2)
+
+        self.sl_profile_acc_j2 = CompactSlider(
+            "J2加速度",
+            Config.PROFILE_ACCEL_MIN_DEG_S2,
+            Config.PROFILE_ACCEL_MAX_DEG_S2,
+            Config.PROFILE_ACCEL_DEFAULT_DEG_S2,
+            decimals=0,
+            suffix="°/s²",
+        )
+        self.sl_profile_acc_j2.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_acc_j2)
+
+        self.sl_profile_jerk_j2 = CompactSlider(
+            "J2加加速度",
+            Config.PROFILE_JERK_MIN_DEG_S3,
+            Config.PROFILE_JERK_MAX_DEG_S3,
+            Config.PROFILE_JERK_DEFAULT_DEG_S3,
+            decimals=0,
+            suffix="°/s³",
+        )
+        self.sl_profile_jerk_j2.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_profile_jerk_j2)
+
+        self.sl_stiffness_j1 = CompactSlider(
+            "J1刚度",
+            Config.CMD_STIFFNESS_MIN,
+            Config.CMD_STIFFNESS_MAX,
+            Config.CMD_STIFFNESS_DEFAULT_J1,
+            decimals=2,
+        )
+        self.sl_stiffness_j1.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_stiffness_j1)
+
+        self.sl_damping_j1 = CompactSlider(
+            "J1阻尼",
+            Config.CMD_DAMPING_MIN,
+            Config.CMD_DAMPING_MAX_J1,
+            Config.CMD_DAMPING_DEFAULT_J1,
+            decimals=4,
+        )
+        self.sl_damping_j1.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_damping_j1)
+
+        self.sl_stiffness_j2 = CompactSlider(
+            "J2刚度",
+            Config.CMD_STIFFNESS_MIN,
+            Config.CMD_STIFFNESS_MAX,
+            Config.CMD_STIFFNESS_DEFAULT_J2,
+            decimals=2,
+        )
+        self.sl_stiffness_j2.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_stiffness_j2)
+
+        self.sl_damping_j2 = CompactSlider(
+            "J2阻尼",
+            Config.CMD_DAMPING_MIN,
+            Config.CMD_DAMPING_MAX_J2,
+            Config.CMD_DAMPING_DEFAULT_J2,
+            decimals=4,
+        )
+        self.sl_damping_j2.setFixedWidth(320)
+        profile_layout.addWidget(self.sl_damping_j2)
+
+        profile_hint = QtWidgets.QLabel("正常控制下每轴速度/加速度/加加速度固定发送 0")
+        profile_hint.setObjectName("Hint")
+        profile_layout.addWidget(profile_hint)
+
+        ctrl_layout.addWidget(profile_group)
+
+        # 分隔线
+        line2 = QtWidgets.QFrame()
+        line2.setFrameShape(QtWidgets.QFrame.VLine)
+        line2.setStyleSheet("color: #e8ddd4;")
+        line2.setFixedHeight(120)
+        ctrl_layout.addWidget(line2)
 
         # 右侧：速度控制
         speed_group = QtWidgets.QWidget()
@@ -958,7 +1207,7 @@ class Visualizer(QtWidgets.QMainWindow):
         speed_layout.setSpacing(8)
 
         speed_row = QtWidgets.QHBoxLayout()
-        speed_label = QtWidgets.QLabel("变化速度")
+        speed_label = QtWidgets.QLabel("手动速度")
         speed_label.setStyleSheet("color: #5a4a42; font-size: 12px; font-weight: 500; min-width: 60px;")
         self.sl_speed = CompactSlider("", Config.MANUAL_SPEED_MIN_DEG_S, Config.MANUAL_SPEED_MAX_DEG_S, 
                                       90.0, decimals=0, suffix="°/s")
@@ -968,7 +1217,7 @@ class Visualizer(QtWidgets.QMainWindow):
         speed_row.addStretch()
         speed_layout.addLayout(speed_row)
 
-        hint = QtWidgets.QLabel("勾选手动模式后可拖动滑块控制单关节")
+        hint = QtWidgets.QLabel("只用于手动拖动关节时的本地斜坡速度")
         hint.setObjectName("Hint")
         speed_layout.addWidget(hint)
 
@@ -978,11 +1227,23 @@ class Visualizer(QtWidgets.QMainWindow):
         root.addWidget(ctrl_panel, 0)
 
         # 信号连接
-        self.cb_j1.toggled.connect(lambda checked: self.ctrl.set_manual_joint_enable(1, checked))
-        self.cb_j2.toggled.connect(lambda checked: self.ctrl.set_manual_joint_enable(2, checked))
-        self.sl_j1.valueChanged.connect(lambda v: self.ctrl.set_manual_joint_target(1, v))
-        self.sl_j2.valueChanged.connect(lambda v: self.ctrl.set_manual_joint_target(2, v))
-        self.sl_speed.valueChanged.connect(lambda v: self.ctrl.set_manual_speed_deg_s(v))
+        self.cb_j1.toggled.connect(lambda checked: self._on_manual_joint_enable_changed(1, checked))
+        self.cb_j2.toggled.connect(lambda checked: self._on_manual_joint_enable_changed(2, checked))
+        self.sl_j1.valueChanged.connect(lambda v: self._on_manual_joint_target_changed(1, v))
+        self.sl_j2.valueChanged.connect(lambda v: self._on_manual_joint_target_changed(2, v))
+        self.sl_speed.valueChanged.connect(self._on_manual_speed_changed)
+        self.cmb_control_mode.currentIndexChanged.connect(self._on_control_mode_changed)
+        self.sl_profile_vel_j1.valueChanged.connect(lambda v: self._on_profile_velocity_changed(1, v))
+        self.sl_profile_acc_j1.valueChanged.connect(lambda v: self._on_profile_acc_changed(1, v))
+        self.sl_profile_jerk_j1.valueChanged.connect(lambda v: self._on_profile_jerk_changed(1, v))
+        self.sl_profile_vel_j2.valueChanged.connect(lambda v: self._on_profile_velocity_changed(2, v))
+        self.sl_profile_acc_j2.valueChanged.connect(lambda v: self._on_profile_acc_changed(2, v))
+        self.sl_profile_jerk_j2.valueChanged.connect(lambda v: self._on_profile_jerk_changed(2, v))
+        self.sl_stiffness_j1.valueChanged.connect(lambda v: self._on_stiffness_changed(1, v))
+        self.sl_damping_j1.valueChanged.connect(lambda v: self._on_damping_changed(1, v))
+        self.sl_stiffness_j2.valueChanged.connect(lambda v: self._on_stiffness_changed(2, v))
+        self.sl_damping_j2.valueChanged.connect(lambda v: self._on_damping_changed(2, v))
+        self._apply_profile_mode_ui(self.ctrl.control_mode)
 
     def _place_overlay(self):
         if not hasattr(self, "overlay"):
@@ -1011,10 +1272,72 @@ class Visualizer(QtWidgets.QMainWindow):
                 f"(unreachable or J1 out of [{Config.J1_MIN_DEG:.0f},{Config.J1_MAX_DEG:.0f}]deg)"
             )
 
+    def _apply_profile_mode_ui(self, mode: int):
+        profile_enabled = mode != Config.CONTROL_MODE_NORMAL
+        self.sl_profile_vel_j1.setEnabled(profile_enabled)
+        self.sl_profile_acc_j1.setEnabled(profile_enabled)
+        self.sl_profile_jerk_j1.setEnabled(profile_enabled)
+        self.sl_profile_vel_j2.setEnabled(profile_enabled)
+        self.sl_profile_acc_j2.setEnabled(profile_enabled)
+        self.sl_profile_jerk_j2.setEnabled(profile_enabled)
+
+    def _on_manual_joint_enable_changed(self, joint_idx: int, checked: bool):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_manual_joint_enable(joint_idx, checked)
+
+    def _on_manual_joint_target_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_manual_joint_target(joint_idx, value)
+
+    def _on_manual_speed_changed(self, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_manual_speed_deg_s(value)
+
+    def _set_combo_mode(self, mode: int):
+        index = self.cmb_control_mode.findData(mode)
+        if index >= 0 and self.cmb_control_mode.currentIndex() != index:
+            self.cmb_control_mode.setCurrentIndex(index)
+
+    def _on_control_mode_changed(self, _index: int):
+        if self._manual_ui_sync:
+            return
+        mode = int(self.cmb_control_mode.currentData())
+        self.ctrl.set_control_mode(mode)
+        self._apply_profile_mode_ui(mode)
+
+    def _on_profile_velocity_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_profile_velocity(joint_idx, value)
+
+    def _on_profile_acc_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_profile_acceleration(joint_idx, value)
+
+    def _on_profile_jerk_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_profile_jerk(joint_idx, value)
+
+    def _on_stiffness_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_stiffness(joint_idx, value)
+
+    def _on_damping_changed(self, joint_idx: int, value: float):
+        if self._manual_ui_sync:
+            return
+        self.ctrl.set_damping(joint_idx, value)
+
     def update_ui(self):
         st = self.ctrl.get_status()
         j, c, t, cmd = st["joint"], st["cart"], st["target"], st["cmd_joint"]
         man = st["manual"]
+        profile = st["profile"]
         _cart, coords, _jac = kinematics(Joint(j["th1"], j["w1"], j["th2"], j["w2"]))
         self.arm_canvas.set_scene(coords, (t["x"], t["y"]))
 
@@ -1037,6 +1360,18 @@ class Visualizer(QtWidgets.QMainWindow):
             self.sl_j1.set_value(man["target1"])
             self.sl_j2.set_value(man["target2"])
             self.sl_speed.set_value(man["speed_deg_s"])
+            self._set_combo_mode(profile["control_mode"])
+            self.sl_profile_vel_j1.set_value(profile["configured_velocity1"])
+            self.sl_profile_acc_j1.set_value(profile["configured_acceleration1"])
+            self.sl_profile_jerk_j1.set_value(profile["configured_jerk1"])
+            self.sl_profile_vel_j2.set_value(profile["configured_velocity2"])
+            self.sl_profile_acc_j2.set_value(profile["configured_acceleration2"])
+            self.sl_profile_jerk_j2.set_value(profile["configured_jerk2"])
+            self.sl_stiffness_j1.set_value(profile["stiffness1"])
+            self.sl_damping_j1.set_value(profile["damping1"])
+            self.sl_stiffness_j2.set_value(profile["stiffness2"])
+            self.sl_damping_j2.set_value(profile["damping2"])
+            self._apply_profile_mode_ui(profile["control_mode"])
         finally:
             self._manual_ui_sync = False
 
@@ -1074,12 +1409,22 @@ class Controller:
         self.t_last_fb = 0.0
         self.warn_no_fb = False
         self.mode = "CAN FD" if use_can else "SIM"
-        # 位置控制发送状态：减少重复发送
-        self._target_dirty = True
-        self._last_target_xy = (self.target.x, self.target.y)
-        self._last_sent_cmd: Optional[Joint] = None
-        self._last_sent_cost = float("inf")
-        self._last_pos_send_t = 0.0
+        self.control_mode = Config.CONTROL_MODE
+        self.profile_velocity_deg_s = [
+            Config.PROFILE_VELOCITY_DEFAULT_DEG_S,
+            Config.PROFILE_VELOCITY_DEFAULT_DEG_S,
+        ]
+        self.profile_acc_deg_s2 = [
+            Config.PROFILE_ACCEL_DEFAULT_DEG_S2,
+            Config.PROFILE_ACCEL_DEFAULT_DEG_S2,
+        ]
+        self.profile_jerk_deg_s3 = [
+            Config.PROFILE_JERK_DEFAULT_DEG_S3,
+            Config.PROFILE_JERK_DEFAULT_DEG_S3,
+        ]
+        self.stiffness = [Config.CMD_STIFFNESS_DEFAULT_J1, Config.CMD_STIFFNESS_DEFAULT_J2]
+        self.damping = [Config.CMD_DAMPING_DEFAULT_J1, Config.CMD_DAMPING_DEFAULT_J2]
+        self.gravity_ff = [0.0, 0.0]
         # 手动关节控制状态（0->J1, 1->J2）
         self.manual_joint_enable = [False, False]
         self.manual_joint_target = [self.cmd_joint.th1, self.cmd_joint.th2]
@@ -1090,8 +1435,6 @@ class Controller:
         with self.lock:
             self.target.x = x
             self.target.y = y
-            # 目标有更新，触发下一次位置指令发送
-            self._target_dirty = True
         print(f"[TARGET] X={x*1000:.1f}mm, Y={y*1000:.1f}mm")
 
     def set_manual_joint_enable(self, joint_idx: int, enabled: bool):
@@ -1105,7 +1448,6 @@ class Controller:
                 seed = self.cmd_joint.th1 if i == 0 else self.cmd_joint.th2
                 self.manual_joint_target[i] = seed
                 self.manual_joint_cmd[i] = seed
-                self._target_dirty = True
 
     def set_manual_joint_target(self, joint_idx: int, target_deg: float):
         """设置单关节手动目标角。joint_idx: 1或2"""
@@ -1117,7 +1459,6 @@ class Controller:
             target_deg = clamp(target_deg, Config.J2_MANUAL_MIN_DEG, Config.J2_MANUAL_MAX_DEG)
         with self.lock:
             self.manual_joint_target[joint_idx - 1] = target_deg
-            self._target_dirty = True
 
     def set_manual_speed_deg_s(self, speed_deg_s: float):
         with self.lock:
@@ -1126,6 +1467,80 @@ class Controller:
                 Config.MANUAL_SPEED_MIN_DEG_S,
                 Config.MANUAL_SPEED_MAX_DEG_S,
             )
+
+    def set_control_mode(self, mode: int):
+        if mode not in (
+            Config.CONTROL_MODE_NORMAL,
+            Config.CONTROL_MODE_TRAPEZOIDAL,
+            Config.CONTROL_MODE_S_CURVE,
+        ):
+            return
+        with self.lock:
+            self.control_mode = int(mode)
+
+    def set_profile_velocity(self, joint_idx: int, velocity_deg_s: float):
+        if joint_idx not in (1, 2):
+            return
+        with self.lock:
+            self.profile_velocity_deg_s[joint_idx - 1] = clamp(
+                float(velocity_deg_s),
+                Config.PROFILE_VELOCITY_MIN_DEG_S,
+                Config.PROFILE_VELOCITY_MAX_DEG_S,
+            )
+
+    def set_profile_acceleration(self, joint_idx: int, accel_deg_s2: float):
+        if joint_idx not in (1, 2):
+            return
+        with self.lock:
+            self.profile_acc_deg_s2[joint_idx - 1] = clamp(
+                float(accel_deg_s2),
+                Config.PROFILE_ACCEL_MIN_DEG_S2,
+                Config.PROFILE_ACCEL_MAX_DEG_S2,
+            )
+
+    def set_profile_jerk(self, joint_idx: int, jerk_deg_s3: float):
+        if joint_idx not in (1, 2):
+            return
+        with self.lock:
+            self.profile_jerk_deg_s3[joint_idx - 1] = clamp(
+                float(jerk_deg_s3),
+                Config.PROFILE_JERK_MIN_DEG_S3,
+                Config.PROFILE_JERK_MAX_DEG_S3,
+            )
+
+    def set_stiffness(self, joint_idx: int, stiffness: float):
+        if joint_idx not in (1, 2):
+            return
+        with self.lock:
+            self.stiffness[joint_idx - 1] = clamp(
+                float(stiffness),
+                Config.CMD_STIFFNESS_MIN,
+                Config.CMD_STIFFNESS_MAX,
+            )
+
+    def set_damping(self, joint_idx: int, damping: float):
+        if joint_idx not in (1, 2):
+            return
+        damping_max = Config.CMD_DAMPING_MAX_J1 if joint_idx == 1 else Config.CMD_DAMPING_MAX_J2
+        with self.lock:
+            self.damping[joint_idx - 1] = clamp(
+                float(damping),
+                Config.CMD_DAMPING_MIN,
+                damping_max,
+            )
+
+    def _get_profile_command(self):
+        with self.lock:
+            control_mode = self.control_mode
+            velocity = tuple(self.profile_velocity_deg_s)
+            acceleration = tuple(self.profile_acc_deg_s2)
+            jerk = tuple(self.profile_jerk_deg_s3)
+            stiffness = tuple(self.stiffness)
+            damping = tuple(self.damping)
+
+        if control_mode == Config.CONTROL_MODE_NORMAL:
+            return control_mode, (0.0, 0.0), (0.0, 0.0), (0.0, 0.0), stiffness, damping
+        return control_mode, velocity, acceleration, jerk, stiffness, damping
 
     def _update_manual_joint_cmd(self, dt: float):
         """按速度上限对手动目标做斜坡，避免目标突跳。"""
@@ -1185,6 +1600,10 @@ class Controller:
                                 vy=self.target.vy,
                             )
                         self.ctrl = pd_control(self.cart, tgt, jac)
+                        grav1, grav2 = gravity_compensation_currents(self.joint)
+                        self.ctrl.grav1 = grav1
+                        self.ctrl.grav2 = grav2
+                        self.gravity_ff = [grav1, grav2]
                         # 1ms周期：基于最新反馈求逆解，生成位置目标。
                         ik_joint = inverse_kinematics_xy(tgt.x, tgt.y, self.joint)
                         if ik_joint is not None:
@@ -1199,17 +1618,30 @@ class Controller:
                             )
                     else:
                         self.ctrl = Ctrl()
+                        self.gravity_ff = [0.0, 0.0]
 
                     # If feedback is stale, fail-safe to zero current.
                     if self.has_feedback and (t_now - self.t_last_fb > Config.RX_STALE_SEC):
-                        self.has_feedback = False
-                        self.ctrl = Ctrl()
                         self.cmd_joint = Joint(
                             th1=self.joint.th1,
                             w1=0.0,
                             th2=self.joint.th2,
                             w2=0.0,
                         )
+                        control_mode, target_vel, target_acc, target_jerk, stiffness, damping = self._get_profile_command()
+                        self.comm.write(
+                            self.cmd_joint,
+                            0.0,
+                            0.0,
+                            control_mode,
+                            target_vel,
+                            target_acc,
+                            target_jerk,
+                            stiffness,
+                            damping,
+                        )
+                        self.has_feedback = False
+                        self.ctrl = Ctrl()
                         if not self.warn_no_fb:
                             print("[WARN] CAN FD feedback stale, output forced to zero.")
                             self.warn_no_fb = True
@@ -1222,62 +1654,28 @@ class Controller:
                         self.cmd_joint.th1 = manual_cmd[0]
                     if manual_enable[1]:
                         self.cmd_joint.th2 = manual_cmd[1]
-                    manual_active = manual_enable[0] or manual_enable[1]
-
-                    # 发送策略：
-                    # - 位置模式：发逆解目标角 + 零电流
-                    # - 力矩模式：发最新逆解目标角（占位）+ PD电流
-                    if Config.CONTROL_MODE == Config.CONTROL_MODE_POSITION or manual_active:
-                        tx_iq1, tx_iq2 = 0.0, 0.0
-
-                        # 仅在需要时发送一次位置目标，避免目标不变时1kHz重复发送。
-                        target_changed = False
-                        with self.lock:
-                            dx = self.target.x - self._last_target_xy[0]
-                            dy = self.target.y - self._last_target_xy[1]
-                            if math.hypot(dx, dy) > Config.POS_TARGET_DEADBAND_M:
-                                target_changed = True
-                                self._last_target_xy = (self.target.x, self.target.y)
-
-                        cmd_changed = True
-                        if self._last_sent_cmd is not None:
-                            cmd_changed = (
-                                abs(_wrap_deg_err(self.cmd_joint.th1 - self._last_sent_cmd.th1))
-                                > Config.POS_CMD_DEADBAND_DEG
-                                or abs(_wrap_deg_err(self.cmd_joint.th2 - self._last_sent_cmd.th2))
-                                > Config.POS_CMD_DEADBAND_DEG
-                            )
-
-                        # "更优解"用逆解与当前反馈的角度差总和衡量，明显更优再更新。
-                        ik_cost = abs(_wrap_deg_err(self.cmd_joint.th1 - self.joint.th1)) + abs(
-                            _wrap_deg_err(self.cmd_joint.th2 - self.joint.th2)
-                        )
-                        better_solution = (self._last_sent_cost - ik_cost) > Config.POS_IK_IMPROVE_DEG
-                        keepalive_due = (t_now - self._last_pos_send_t) >= Config.POS_KEEPALIVE_SEC
-
-                        should_send_pos = (
-                            self._last_sent_cmd is None
-                            or self._target_dirty
-                            or target_changed
-                            or cmd_changed
-                            or better_solution
-                            or keepalive_due
-                        )
-
-                        if should_send_pos:
-                            self.comm.write(self.cmd_joint, tx_iq1, tx_iq2)
-                            self._last_sent_cmd = Joint(
-                                th1=self.cmd_joint.th1,
-                                w1=0.0,
-                                th2=self.cmd_joint.th2,
-                                w2=0.0,
-                            )
-                            self._last_sent_cost = ik_cost
-                            self._last_pos_send_t = t_now
-                            self._target_dirty = False
-                    else:
-                        tx_iq1, tx_iq2 = self.ctrl.iq1, self.ctrl.iq2
-                        self.comm.write(self.cmd_joint, tx_iq1, tx_iq2)
+                    if not self.has_feedback:
+                        self.rx_frames = self.comm.rx_frames
+                        self.tx_frames = self.comm.tx_frames
+                        self.err_tx_frames = self.comm.err_frames
+                        self.fb1 = self.comm.get_motor_status(Config.MOTOR1_ID)
+                        self.fb2 = self.comm.get_motor_status(Config.MOTOR2_ID)
+                        t_next += Config.LOOP_DT
+                        continue
+                    control_mode, target_vel, target_acc, target_jerk, stiffness, damping = self._get_profile_command()
+                    tx_iq1 = clamp(self.ctrl.iq1 + self.ctrl.grav1, -Config.IQ_MAX, Config.IQ_MAX)
+                    tx_iq2 = clamp(self.ctrl.iq2 + self.ctrl.grav2, -Config.IQ_MAX, Config.IQ_MAX)
+                    self.comm.write(
+                        self.cmd_joint,
+                        tx_iq1,
+                        tx_iq2,
+                        control_mode,
+                        target_vel,
+                        target_acc,
+                        target_jerk,
+                        stiffness,
+                        damping,
+                    )
                     self.rx_frames = self.comm.rx_frames
                     self.tx_frames = self.comm.tx_frames
                     self.err_tx_frames = self.comm.err_frames
@@ -1302,6 +1700,10 @@ class Controller:
                             vy=self.target.vy,
                         )
                     self.ctrl = pd_control(self.cart, tgt, (0.0, 0.0, 0.0, 0.0))
+                    grav1, grav2 = gravity_compensation_currents(self.joint)
+                    self.ctrl.grav1 = grav1
+                    self.ctrl.grav2 = grav2
+                    self.gravity_ff = [grav1, grav2]
                     self.rx_frames += 1
 
                 t_next += Config.LOOP_DT
@@ -1320,8 +1722,19 @@ class Controller:
     def stop(self):
         self.running = False
         if self.comm:
+            control_mode, target_vel, target_acc, target_jerk, stiffness, damping = self._get_profile_command()
             for _ in range(3):
-                self.comm.write(self.joint, 0.0, 0.0)
+                self.comm.write(
+                    self.joint,
+                    0.0,
+                    0.0,
+                    control_mode,
+                    target_vel,
+                    target_acc,
+                    target_jerk,
+                    stiffness,
+                    damping,
+                )
                 time.sleep(0.005)
             self.comm.close()
 
@@ -1340,7 +1753,14 @@ class Controller:
                 },
                 "cart": {"x": self.cart.x, "y": self.cart.y, "vx": self.cart.vx, "vy": self.cart.vy},
                 "target": {"x": self.target.x, "y": self.target.y},
-                "ctrl": {"iq1": self.ctrl.iq1, "iq2": self.ctrl.iq2},
+                "ctrl": {
+                    "iq1": self.ctrl.iq1,
+                    "iq2": self.ctrl.iq2,
+                    "grav1": self.ctrl.grav1,
+                    "grav2": self.ctrl.grav2,
+                    "iq1_total": clamp(self.ctrl.iq1 + self.ctrl.grav1, -Config.IQ_MAX, Config.IQ_MAX),
+                    "iq2_total": clamp(self.ctrl.iq2 + self.ctrl.grav2, -Config.IQ_MAX, Config.IQ_MAX),
+                },
                 "manual": {
                     "enable1": self.manual_joint_enable[0],
                     "enable2": self.manual_joint_enable[1],
@@ -1350,12 +1770,43 @@ class Controller:
                     "cmd2": self.manual_joint_cmd[1],
                     "speed_deg_s": self.manual_speed_deg_s,
                 },
+                "profile": {
+                    "control_mode": self.control_mode,
+                    "velocity1": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_velocity_deg_s[0],
+                    "velocity2": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_velocity_deg_s[1],
+                    "acceleration1": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_acc_deg_s2[0],
+                    "acceleration2": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_acc_deg_s2[1],
+                    "jerk1": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_jerk_deg_s3[0],
+                    "jerk2": 0.0
+                    if self.control_mode == Config.CONTROL_MODE_NORMAL
+                    else self.profile_jerk_deg_s3[1],
+                    "configured_velocity1": self.profile_velocity_deg_s[0],
+                    "configured_velocity2": self.profile_velocity_deg_s[1],
+                    "configured_acceleration1": self.profile_acc_deg_s2[0],
+                    "configured_acceleration2": self.profile_acc_deg_s2[1],
+                    "configured_jerk1": self.profile_jerk_deg_s3[0],
+                    "configured_jerk2": self.profile_jerk_deg_s3[1],
+                    "stiffness1": self.stiffness[0],
+                    "stiffness2": self.stiffness[1],
+                    "damping1": self.damping[0],
+                    "damping2": self.damping[1],
+                },
                 "hz": self.hz,
                 "rx_frames": self.rx_frames,
                 "tx_frames": self.tx_frames,
                 "err_tx_frames": self.err_tx_frames,
                 "mode": self.mode,
-                "control_mode_name": control_mode_name(Config.CONTROL_MODE),
+                "control_mode_name": control_mode_name(self.control_mode),
                 "fb1": None
                 if self.fb1 is None
                 else {
@@ -1363,6 +1814,7 @@ class Controller:
                     "w": self.fb1.w,
                     "cur": self.fb1.cur,
                     "temp": self.fb1.temp,
+                    "acc": self.fb1.acc,
                     "status": self.fb1.status,
                     "error": self.fb1.error,
                     "t_rx": self.fb1.t_rx,
@@ -1374,6 +1826,7 @@ class Controller:
                     "w": self.fb2.w,
                     "cur": self.fb2.cur,
                     "temp": self.fb2.temp,
+                    "acc": self.fb2.acc,
                     "status": self.fb2.status,
                     "error": self.fb2.error,
                     "t_rx": self.fb2.t_rx,
@@ -1393,9 +1846,9 @@ def main():
     parser.add_argument("--disable-tx", action="store_true", help="receive only, do not send control frame")
     parser.add_argument(
         "--control-mode",
-        choices=["torque", "position"],
-        default="torque",
-        help="control mode for control frame: torque->target_cur, position->target_pos",
+        choices=["normal", "trapezoidal", "s_curve"],
+        default="s_curve",
+        help="initial profile mode for control frame",
     )
     parser.add_argument("--motor1-id", type=int, default=Config.MOTOR1_ID, help="motor1 CAN node ID")
     parser.add_argument("--motor2-id", type=int, default=Config.MOTOR2_ID, help="motor2 CAN node ID")
@@ -1406,11 +1859,11 @@ def main():
     Config.CAN_DATA_BITRATE = args.data_bitrate
     Config.SLCAN_TTY_BAUDRATE = args.tty_baud
     Config.ENABLE_CONTROL_TX = not bool(args.disable_tx)
-    Config.CONTROL_MODE = (
-        Config.CONTROL_MODE_TORQUE
-        if args.control_mode == "torque"
-        else Config.CONTROL_MODE_POSITION
-    )
+    Config.CONTROL_MODE = {
+        "normal": Config.CONTROL_MODE_NORMAL,
+        "trapezoidal": Config.CONTROL_MODE_TRAPEZOIDAL,
+        "s_curve": Config.CONTROL_MODE_S_CURVE,
+    }[args.control_mode]
     Config.MOTOR1_ID = args.motor1_id & 0x0F
     Config.MOTOR2_ID = args.motor2_id & 0x0F
 

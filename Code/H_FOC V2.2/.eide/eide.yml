@@ -116,8 +116,8 @@ virtualFolder:
         - path: MID/foc_vibration_sweep.h
         - path: MID/foc_filter.c
         - path: MID/foc_filter.h
-        - path: MID/foc_trajectory_planning.c
         - path: MID/foc_trajectory_planning.h
+        - path: MID/foc_trajectory_planning.c
       folders: []
     - name: ::CMSIS
       files: []

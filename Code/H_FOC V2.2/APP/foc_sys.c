@@ -54,7 +54,7 @@ void TIM3_IRQHandler(void)
 }
 
 /**
-  * @brief 编码器值获取中断
+  * @brief 编码器值获取中断(PWM-HZ)
   */
 void TIM8_CC_IRQHandler(void)
 {
@@ -70,16 +70,12 @@ void TIM8_CC_IRQHandler(void)
      encoder_read_electrical_angle();
      // 编码器机械角度读取及更新机械转速
      encoder_read_mechanical_angle();
-     #if 0  // 当前版本被降阶龙伯格观测器替代
-     // 更新电机转速
-     encoder_get_mechanical_speed();
-     #endif
    }
   }
 }
 
 /**
-  * @brief 外环定时中断处理
+  * @brief 外环定时中断处理(1ms)
   */
 void TIM4_IRQHandler(void)
 {

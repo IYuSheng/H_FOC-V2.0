@@ -180,45 +180,6 @@ static inline encoder_status_t encoder_write_reg_correct(uint16_t reg_addr, uint
     }
 }
 
-/* ================================= 全局函数实现 ================================= */
-
-pos_luenberger_t g_pos_obs = {0};
-
-static inline void pos_obs_reset(float theta_meas_deg)
-{
-    g_pos_obs.theta_hat = theta_meas_deg;
-    g_pos_obs.omega_hat = 0.0f;
-    g_pos_obs.inited = 1;
-}
-
-// 50Hz 观测器带宽（你指定）
-#define POS_OBS_BW_HZ  (50.0f)
-
-// 由带宽生成增益（工程上常用的“二阶临界阻尼”形式）
-// 连续极点放在 s = -omega_obs (重复极点)，离散近似：
-// L1 ≈ 2*omega*dt, L2 ≈ omega^2*dt
-static inline void pos_obs_update(float theta_meas_deg, float dt)
-{
-    if (!g_pos_obs.inited) {
-        pos_obs_reset(theta_meas_deg);
-        return;
-    }
-
-    const float omega = 2.0f * _PI * POS_OBS_BW_HZ; // rad/s（只是用于算增益）
-    const float L1 = 2.0f * omega * dt;              // 无量纲
-    const float L2 = (omega * omega) * dt;           // 1/s
-
-    // 1) 预测（先用模型走一步）
-    const float theta_pred = g_pos_obs.theta_hat + g_pos_obs.omega_hat * dt;
-
-    // 2) 创新/残差（角度误差）
-    const float e = theta_meas_deg - theta_pred;
-
-    // 3) 校正
-    g_pos_obs.theta_hat = theta_pred + L1 * e;
-    g_pos_obs.omega_hat = g_pos_obs.omega_hat + L2 * e;
-}
-
 /**
   * @brief  编码器初始化函数并校准零点
   * @note   检查编码器通信是否正常，读取诊断寄存器验证连接
@@ -254,6 +215,57 @@ uint16_t encoder_read_raw_angle(void)
     return encoder_read_reg_correct(ENCODER_REG_ANGLE);
 }
 
+pos_luenberger_t g_pos_obs = {0};
+
+static inline void pos_obs_reset(float theta_meas_deg)
+{
+    g_pos_obs.theta_hat = theta_meas_deg;
+    g_pos_obs.omega_hat = 0.0f;
+    g_pos_obs.alpha_hat = 0.0f;
+    g_pos_obs.inited = 1;
+}
+
+// 观测器带宽
+#define POS_OBS_BW_HZ  (10.0f)
+
+// 由带宽生成增益
+// 连续极点放在 s = -omega_obs (重复极点)，离散近似：
+// L1 ≈ 2*omega*dt, L2 ≈ omega^2*dt
+static inline void pos_obs_update(float theta_meas_deg, float dt)
+{
+    if (!g_pos_obs.inited) {
+        pos_obs_reset(theta_meas_deg);
+        return;
+    }
+
+    const float w = 2.0f * _PI * POS_OBS_BW_HZ;   // rad/s，这里仅作为极点带宽参数使用
+
+    // 三重极点放在 s = -w
+    // (s + w)^3 = s^3 + 3ws^2 + 3w^2s + w^3
+    const float l1 = 3.0f * w;           // 1/s
+    const float l2 = 3.0f * w * w;       // 1/s^2
+    const float l3 = w * w * w;          // 1/s^3
+
+    // 1) 预测
+    const float theta_pred = g_pos_obs.theta_hat
+                           + g_pos_obs.omega_hat * dt
+                           + 0.5f * g_pos_obs.alpha_hat * dt * dt;
+
+    const float omega_pred = g_pos_obs.omega_hat
+                           + g_pos_obs.alpha_hat * dt;
+
+    const float alpha_pred = g_pos_obs.alpha_hat;
+
+    // 2) 创新/残差
+    const float e = theta_meas_deg - theta_pred;
+
+    // 3) 校正
+    // 离散欧拉近似：K1=l1*dt, K2=l2*dt, K3=l3*dt
+    g_pos_obs.theta_hat = theta_pred + (l1 * dt) * e;
+    g_pos_obs.omega_hat = omega_pred + (l2 * dt) * e;
+    g_pos_obs.alpha_hat = alpha_pred + (l3 * dt) * e;
+}
+
 /**
   * @brief  读取编码器累计角度（格式：圈数×360 + 当前角度）
   * @note   正转：圈数递增，如1圈30°→1×360+30=390；反转：圈数递减，如-1圈30°→-1×360+30=-330
@@ -275,7 +287,7 @@ float encoder_read_mechanical_angle(void)
     pos_obs_update(encoder_data.mechanical_angle, PWM_PERIOD_S);
     encoder_data.mechanical_speed = g_pos_obs.omega_hat;
     encoder_data.electrical_speed = deg2rad(encoder_data.mechanical_speed * MOTOR_POLE_PAIRS); // 正负跟电机接线相关
-
+    encoder_data.mechanical_accsd = g_pos_obs.alpha_hat;
     return encoder_data.mechanical_angle;
 }
 

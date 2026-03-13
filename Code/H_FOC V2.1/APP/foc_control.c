@@ -7,6 +7,7 @@ static inline void foc_open_loop_control(float target_speed, float target_outq);
 static inline void foc_current_control(float target_d, float target_q);
 static inline void foc_speed_control(float target_speed);
 static inline void foc_position_control(float target_position);
+static inline void foc_mit_control(void);
 static inline void foc_current_control_hfi(float target_d, float target_q);
 
 /**
@@ -15,33 +16,18 @@ static inline void foc_current_control_hfi(float target_d, float target_q);
 void foc_debug(void)
 {
     // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", foc_ctrl.target_q, foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.electrical_speed, encoder_data.electrical_angle);
-    // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.shaped_t_p, encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.abc_dq.current_q);
-    // debug_log("%.4f, %.4f, %.4f, %.4f", foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.mechanical_speed, foc_ctrl.target_speed);
     // debug_log("%d, %d, %d", svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
     // debug_log("%.4f, %.4f, %.4f, %.4f", foc_current_data.ia, foc_current_data.ib, foc_current_data.ic, foc_ctrl.angle);
     // debug_log("%.4f", foc_voltage_data.vbus);
-    // FDCAN_SendFloat4Data(foc_ctrl.target_position, encoder_data.mechanical_angle, foc_ctrl.abc_dq.current_q, foc_ctrl.target_q);
 
     // 电磁转矩计算
     // foc_ctrl.Te = 1.5f * MOTOR_POLE_PAIRS * (MOTOR_FLUX_LINKAGE * foc_ctrl.abc_dq.current_q);
     // debug_log("%.4f", foc_ctrl.Te);
 
-    // debug_log("%.2f, %.2f, %.4f, %.4f", 
-    // angle_normalize_pi(deg2rad(encoder_data.electrical_angle-180.0f)),
-    // g_flux_obs.theta_hat,
-    // -encoder_data.electrical_speed,
-    // g_flux_obs.omega_filt);
+    // debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
 
-    // debug_log("%.2f, %.2f, %.4f, %.4f", 
-    // angle_normalize_pi(deg2rad(encoder_data.electrical_angle-180.0f)),
-    // g_hfi_pll.theta_est,
-    // g_flux_obs.theta_hat,
-    // g_hfi_pll.i_term);
-
-    // debug_log("%.4f", foc_ctrl.target_position);
-    debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, foc_ctrl.target_position, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
-    // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", g_hfi_pll.omega_est_filt, g_flux_obs.omega_filt, -encoder_data.electrical_speed, g_hfi_pll.theta_est, g_flux_obs.theta_hat);
-
+    debug_log("%.4f, %.4f", angle_normalize_pi(deg2rad(encoder_data.electrical_angle)), g_flux_obs.theta_hat);
+    
     #if FOC_TEST_ENABLE // 扫频测试
     // q轴正弦波扫频输出
     static float sine_angle = 0.0f;
@@ -68,7 +54,7 @@ void foc_start_init(void)
     foc_ctrl.target_speed = 500.0f;   // 设置目标速度(°/s)
     foc_ctrl.out_q = 0.2f; // 设置q轴输出电压(开环用)
     foc_ctrl.out_d = 0.0f; // 设置d轴输出电压(开环用)
-    foc_ctrl.target_q = 0.0f;  // 设置目标Q轴电流
+    foc_ctrl.target_q = 0.18f;  // 设置目标Q轴电流
     foc_ctrl.target_d = 0.0f;  // 设置目标D轴电流
     foc_ctrl.target_position = 173.0f;  // 设置目标位置
     // 初始化电流环PI参数
@@ -97,7 +83,7 @@ void foc_start_init(void)
     // ei_shaper_init(2.84f, 0.05f, POSITION_LOOP_DT);
 
     // 轨迹规划 (速度 加速度 加加速度 Ts)
-    s_curve_planner_init(&g_pos_planner, 500.0f, 200.0f, 1000.0f, POSITION_LOOP_DT);
+    s_curve_planner_init(&g_pos_planner, 5000.0f, 2000.0f, 5000.0f, POSITION_LOOP_DT);
     #endif
     
     #if FLUX_OBSERVER_ENABLE
@@ -135,11 +121,14 @@ void foc_start_init(void)
  */
 void foc_control(void)
 {
-    #if FOC_RESONANCE_ENABLE
+    if (g_canfd_joint_cmd.enabled != 0U) {
+        foc_mit_control();
+        return;
+    }
 
+    #if FOC_RESONANCE_ENABLE
     static uint16_t count = 0;
     float iq_fb;
-    
     switch(g_res_test.state) {
         case 1:
             g_res_test.start_pos = encoder_data.mechanical_angle;
@@ -247,13 +236,15 @@ void foc_control(void)
 
     #else
         #if FOC_SPEED_CONTROL_ENABLE
-        // 速度环
-        foc_speed_control(foc_ctrl.target_speed);
+            // 速度环
+            foc_speed_control(foc_ctrl.target_speed);
         #endif
         #if FOC_POSITION_CONTROL_ENABLE
-        // 位置环
-        foc_position_control(foc_ctrl.target_position);
-        // foc_position_MIT_control(foc_ctrl.target_position);
+            // 位置环
+            foc_position_control(foc_ctrl.target_position);
+        #endif
+        #if FOC_MIT_CONTROL_ENABLE
+            foc_mit_control();
         #endif
     #endif
 }
@@ -387,6 +378,82 @@ static inline void foc_current_control(float target_d, float target_q)
 }
 
 /**
+ * @brief MIT电机控制
+ */
+static inline void foc_mit_control(void)
+{
+    static uint8_t last_control_mode = 0xFFU;
+    static float last_target_angle = 0.0f;
+    static float last_target_velocity = 0.0f;
+    static float last_target_acceleration = 0.0f;
+    static float last_target_jerk = 0.0f;
+    float ref_angle = g_canfd_joint_cmd.target_angle;
+    float ref_velocity = g_canfd_joint_cmd.target_velocity;
+    float pos_err;
+    float vel_err;
+    float plan_vmax;
+    float plan_amax;
+    float plan_jmax;
+
+    switch (g_canfd_joint_cmd.control_mode) {
+        case CONTROL_MODE_S_CURVE:
+            plan_vmax = fabsf(g_canfd_joint_cmd.target_velocity);
+            plan_amax = fabsf(g_canfd_joint_cmd.target_acceleration);
+            plan_jmax = fabsf(g_canfd_joint_cmd.target_jerk);
+
+            if ((plan_vmax > 1e-6f) && (plan_amax > 1e-6f) && (plan_jmax > 1e-6f)) {
+                if ((last_control_mode != CONTROL_MODE_S_CURVE) ||
+                    (fabsf(g_canfd_joint_cmd.target_angle - last_target_angle) > 1e-4f) ||
+                    (fabsf(plan_vmax - last_target_velocity) > 1e-4f) ||
+                    (fabsf(plan_amax - last_target_acceleration) > 1e-4f) ||
+                    (fabsf(plan_jmax - last_target_jerk) > 1e-4f)) {
+                    float plan_start = g_pos_planner.is_busy ? g_pos_planner.current_pos : encoder_data.mechanical_angle;
+
+                    s_curve_planner_init(&g_pos_planner, plan_vmax, plan_amax, plan_jmax, POSITION_LOOP_DT);
+                    g_pos_planner.current_pos = plan_start;
+                    g_pos_planner.current_vel = 0.0f;
+                    g_pos_planner.current_acc = 0.0f;
+                    (void)s_curve_set_target(&g_pos_planner, plan_start, g_canfd_joint_cmd.target_angle);
+
+                    last_target_angle = g_canfd_joint_cmd.target_angle;
+                    last_target_velocity = plan_vmax;
+                    last_target_acceleration = plan_amax;
+                    last_target_jerk = plan_jmax;
+                }
+
+                ref_angle = s_curve_update(&g_pos_planner);
+                ref_velocity = g_pos_planner.current_vel;
+            }
+            break;
+
+        case CONTROL_MODE_TRAPEZOIDAL:
+            /* TODO: 梯形加减速模式后续在这里完善，当前先按直接目标控制处理。 */
+            g_pos_planner.state = S_CURVE_IDLE;
+            g_pos_planner.is_busy = 0U;
+            break;
+
+        case CONTROL_MODE_NORMAL:
+        default:
+            g_pos_planner.state = S_CURVE_IDLE;
+            g_pos_planner.is_busy = 0U;
+            break;
+    }
+
+    last_control_mode = g_canfd_joint_cmd.control_mode;
+
+    pos_err = ref_angle - encoder_data.mechanical_angle;
+    vel_err = ref_velocity - encoder_data.mechanical_speed;
+    float iq_cmd = g_canfd_joint_cmd.target_current +
+                   g_canfd_joint_cmd.stiffness * pos_err +
+                   g_canfd_joint_cmd.damping * vel_err;
+
+    foc_ctrl.target_position = ref_angle;
+    foc_ctrl.target_speed = ref_velocity;
+    foc_ctrl.target_d = 0.0f;
+    foc_ctrl.target_q = -iq_cmd;
+}
+
+/**
  * @brief FOC速度闭环控制
  */
 static inline void foc_speed_control(float target_speed)
@@ -443,11 +510,10 @@ static inline void foc_position_control(float target_position)
     float iq_fb = -foc_position_pid_calculate(foc_ctrl.shaped_t_p, encoder_data.mechanical_angle);
 
     // ===== 重力补偿前馈 =====
-    float iq_grav = 0.0f;
-    // float theta = deg2rad(encoder_data.mechanical_angle);
-    // const float K_G = 0.38f;
-    // const float TH0 = MOTOR_LOW;
-    // iq_grav = K_G * sinf(theta - TH0);
+    float theta = deg2rad(encoder_data.mechanical_angle);
+    const float K_G = 0.38f;
+    const float TH0 = MOTOR_LOW;
+    float iq_grav = K_G * sinf(theta - TH0);
 
     // 计算最终目标Q轴电流
     foc_ctrl.target_q = iq_fb + iq_grav;

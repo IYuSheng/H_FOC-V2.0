@@ -20,7 +20,8 @@
 #include <math.h>
 
 #define FOC_SPEED_CONTROL_ENABLE            0   // 速度环使能
-#define FOC_POSITION_CONTROL_ENABLE         1   // 位置环使能
+#define FOC_POSITION_CONTROL_ENABLE         0   // 位置环使能
+#define FOC_MIT_CONTROL_ENABLE              1   // MIT控制使能
 #define FOC_PARAMETER_IDENTIFICATION_ENABLE 0   // 电机参数辨识使能
 #define FOC_COGGING_COMPENSATION_ENABLE     0   // 齿槽转矩补偿使能
 #define FLUX_OBSERVER_ENABLE                0   // 磁链观测器使能
@@ -28,7 +29,7 @@
 #define HFI_ENABLE                          0   // 高频注入使能（启用后在foc_current_control_hfi中执行HFI相关处理）
 #define HFI_STANDALONE_MODE                 0   // 1:纯HFI 0:HFI+观测器混合
 #define FOC_RESONANCE_ENABLE                0   // 阶跃测试使能
-#define FOC_SHAPER_ENABLE                   1   // 整形输入使能
+#define FOC_SHAPER_ENABLE                   0   // 整形输入使能
 
 typedef struct
 {
