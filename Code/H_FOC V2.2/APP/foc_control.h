@@ -38,31 +38,6 @@
 #define FOC_LINK1_ZERO                      -53.7f  // 第一关节零位角度
 #define FOC_LINK2_ZERO                      172.5f  // 第二关节零位角度
 
-// XY笛卡尔PD控制参数
-#define FOC_XY_KP_X                        20.5f
-#define FOC_XY_KD_X                        0.00f
-#define FOC_XY_KP_Y                        20.5f
-#define FOC_XY_KD_Y                        0.00f
-
-#define FOC_XY_FX_LIMIT                    2.0f   // N
-#define FOC_XY_FY_LIMIT                    2.0f   // N
-
-#define FOC_JOINT1_KT                      0.060f  // N*m/A
-#define FOC_JOINT2_KT                      0.060f  // N*m/A
-#define FOC_JOINT1_IQ_LIMIT                3.0f    // A
-#define FOC_JOINT2_IQ_LIMIT                3.0f    // A
-
-typedef struct
-{
-    float x, y;
-    float vx, vy;
-    float fx, fy;
-    float tau1, tau2;
-    float iq1, iq2;
-} robot_cart_ctrl_out_t;
-
-extern robot_cart_ctrl_out_t cart_out;
-
 typedef enum {
     SENSORLESS_STATE_HFI,
     SENSORLESS_STATE_MIX,
@@ -95,23 +70,5 @@ void foc_debug(void);
  * @param y_out 末端Y坐标输出(单位同连杆长度)
  */
 void foc_calc_end_effector_xy(float *x_out, float *y_out, float *x_out_speed, float *y_out_speed);
-/**
- * @brief XY位置PD控制（D项=期望速度-当前速度）并输出双关节电流
- * @param x_ref 期望X位置(m)
- * @param y_ref 期望Y位置(m)
- * @param vx_ref 期望X速度(m/s)
- * @param vy_ref 期望Y速度(m/s)
- * @param out 输出控制中间量与iq结果
- */
-void foc_xy_pd_control(float x_ref, float y_ref, float vx_ref, float vy_ref, robot_cart_ctrl_out_t *out);
 
-/**
- * @brief 2-link IK: solve joint mechanical angles (deg) from target (x,y)
- * @param x_ref target x (m)
- * @param y_ref target y (m)
- * @param joint1_target_deg out: joint1 mechanical angle (deg)
- * @param joint2_target_deg out: joint2 mechanical angle (deg)
- * @return 1=success, 0=unreachable or invalid args
- */
-uint8_t foc_xy_inverse_kinematics(float x_ref, float y_ref, float *joint1_target_deg, float *joint2_target_deg);
 #endif /* __FOC_CONTROL_H */

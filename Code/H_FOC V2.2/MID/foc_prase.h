@@ -13,9 +13,6 @@ typedef struct {
     uint8_t current_q_valid;
     float target_q;
     uint8_t target_q_valid;
-    float q1;
-    float q2;
-    uint8_t t_q12_valid;
 } uart_parsed_data_t;
 
 // 解析接收到的数据

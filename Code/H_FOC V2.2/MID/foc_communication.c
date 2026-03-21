@@ -32,9 +32,6 @@ void CAN_ExecuteCommand(joint_control_t *cmd)
     g_canfd_joint_cmd.damping = FIX_TO_FLOAT(cmd->damping);
     g_canfd_joint_cmd.control_mode = cmd->control_mode;
     g_canfd_joint_cmd.enabled = 1U;
-
-    foc_ctrl.target_position = g_canfd_joint_cmd.target_angle;
-    foc_ctrl.target_speed = g_canfd_joint_cmd.target_velocity;
 }
 
 void FDCAN_RxCallback(can_frame_t *frame)
@@ -80,13 +77,7 @@ void CAN_Process(void)
 void foc_control_set(void)
 {
     data = get_parsed_data();
-
-    if (data->t_q12_valid) {
-        g_canfd_joint_cmd.enabled = 0U;
-        foc_ctrl.target_q = data->q1;
-        cart_out.iq2 = data->q2;
-        data->t_q12_valid = 0;
-    }
+    
     if (data->target_position_valid) {
         g_canfd_joint_cmd.enabled = 0U;
         foc_ctrl.target_position = data->target_position;

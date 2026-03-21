@@ -1,7 +1,6 @@
 #include "foc_control.h"
 
 SCurve_Planner_t g_pos_planner;
-robot_cart_ctrl_out_t cart_out;
 
 static inline void foc_open_loop_control(float target_speed, float target_outq);
 static inline void foc_current_control(float target_d, float target_q);

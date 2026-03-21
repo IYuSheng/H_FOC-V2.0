@@ -15,27 +15,6 @@ static uart_parsed_data_t parsed_data = {0};
 void parse_received_data(char* data, uint8_t len)
 {
     (void)len; // 避免未使用参数警告
-    
-    // char* q1_start = strstr(data, "q1:");
-    // if(q1_start != NULL) {
-    //     q1_start += 3; // 跳过 "q1:"
-    //     char* end_ptr;
-    //     parsed_data.q1 = strtof(q1_start, &end_ptr);
-        
-    //     if(end_ptr != q1_start) {
-    //         // 查找 q2
-    //         char* q2_start = strstr(end_ptr, "q2:");
-    //         if(q2_start != NULL) {
-    //             q2_start += 3; // 跳过 "q2:"
-    //             parsed_data.q2 = strtof(q2_start, &end_ptr);
-                
-    //             if(end_ptr != q2_start) {
-                    
-    //                 parsed_data.t_q12_valid = 1;
-    //             }
-    //         }
-    //     }
-    // }
 
     char* tpos_start = strstr(data, "target_position:");
     if(tpos_start != NULL) {
