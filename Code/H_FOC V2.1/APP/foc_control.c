@@ -15,7 +15,7 @@ static inline void foc_current_control_hfi(float target_d, float target_q);
  */
 void foc_debug(void)
 {
-    // debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", foc_ctrl.target_q, foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.electrical_speed, encoder_data.electrical_angle);
+    debug_log("%.4f, %.4f, %.4f, %.4f, %.4f", foc_ctrl.target_q, foc_ctrl.abc_dq.current_q, foc_ctrl.abc_dq.current_d, encoder_data.electrical_speed, encoder_data.mechanical_angle);
     // debug_log("%d, %d, %d", svpwm.pwm_a, svpwm.pwm_b, svpwm.pwm_c);
     // debug_log("%.4f, %.4f, %.4f, %.4f", foc_current_data.ia, foc_current_data.ib, foc_current_data.ic, foc_ctrl.angle);
     // debug_log("%.4f", foc_voltage_data.vbus);
@@ -26,7 +26,7 @@ void foc_debug(void)
 
     // debug_log("%.4f, %.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, foc_ctrl.motor2_data.motor2_mechanical_angle, foc_ctrl.motor2_data.motor2_mechanical_speed);
 
-    debug_log("%.4f, %.4f", angle_normalize_pi(deg2rad(encoder_data.electrical_angle)), g_flux_obs.theta_hat);
+    // debug_log("%.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.target_q);
     
     #if FOC_TEST_ENABLE // 扫频测试
     // q轴正弦波扫频输出
@@ -51,12 +51,12 @@ void foc_debug(void)
  */
 void foc_start_init(void)
 {   
-    foc_ctrl.target_speed = 500.0f;   // 设置目标速度(°/s)
+    foc_ctrl.target_speed = 50.0f;   // 设置目标速度(°/s)
     foc_ctrl.out_q = 0.2f; // 设置q轴输出电压(开环用)
     foc_ctrl.out_d = 0.0f; // 设置d轴输出电压(开环用)
-    foc_ctrl.target_q = 0.18f;  // 设置目标Q轴电流
+    foc_ctrl.target_q = 0.15f;  // 设置目标Q轴电流
     foc_ctrl.target_d = 0.0f;  // 设置目标D轴电流
-    foc_ctrl.target_position = 173.0f;  // 设置目标位置
+    foc_ctrl.target_position = 130.0f;  // 设置目标位置
     // 初始化电流环PI参数
     foc_current_pi_init(I_D_P_GAIN, I_Q_P_GAIN, I_I_GAIN, I_I_LIMIT);
     // 初始化速度环PI参数
@@ -98,7 +98,7 @@ void foc_start_init(void)
     
     #if 0   // 电机零位校准时启用
     LL_TIM_EnableIT_CC4(TIM8);
-    foc_ctrl.out_q = 0.5f; // 初始q轴电压
+    foc_ctrl.out_q = 1.5f; // 初始q轴电压
     //  将电角度设为90度(直接当作驱动电机角度)锁定电机至零位
     float sin_theta, cos_theta;
     CORDIC_SinCos_Deg(90.0f, &sin_theta, &cos_theta);
@@ -282,7 +282,7 @@ static inline void foc_open_loop_control(float target_speed, float target_outq)
 
     /************************** 1. 开环电角度计算 **************************/
     // 机械转速 → 电角度速度（°/s）
-    foc_ctrl.speed = -target_speed * MOTOR_POLE_PAIRS;
+    foc_ctrl.speed = target_speed * MOTOR_POLE_PAIRS;
 
     // 积分更新电角度：θ = θ + ω_e * 控制周期（控制周期 = 1/CONTROL_LOOP_FREQ）
     float32_t ctrl_period = PWM_PERIOD_S;
@@ -349,8 +349,8 @@ static inline void foc_current_control(float target_d, float target_q)
     float vq_ff =  g_flux_obs.omega_filt * (MOTOR_INDUCTANCE_Ld * foc_ctrl.abc_dq.current_d + MOTOR_FLUX_LINKAGE);
     #else
     // 电流环前馈解耦
-    float vd_ff = -encoder_data.electrical_speed * MOTOR_INDUCTANCE_Lq * foc_ctrl.abc_dq.current_q_filt;
-    float vq_ff =  encoder_data.electrical_speed * (MOTOR_INDUCTANCE_Ld * foc_ctrl.abc_dq.current_d_filt + MOTOR_FLUX_LINKAGE);
+    float vd_ff = encoder_data.electrical_speed * MOTOR_INDUCTANCE_Lq * foc_ctrl.abc_dq.current_q_filt;
+    float vq_ff = -encoder_data.electrical_speed * (MOTOR_INDUCTANCE_Ld * foc_ctrl.abc_dq.current_d_filt + MOTOR_FLUX_LINKAGE);
     #endif
 
     // 电流环PID计算
@@ -510,13 +510,13 @@ static inline void foc_position_control(float target_position)
     float iq_fb = -foc_position_pid_calculate(foc_ctrl.shaped_t_p, encoder_data.mechanical_angle);
 
     // ===== 重力补偿前馈 =====
-    float theta = deg2rad(encoder_data.mechanical_angle);
-    const float K_G = 0.38f;
-    const float TH0 = MOTOR_LOW;
-    float iq_grav = K_G * sinf(theta - TH0);
+    // float theta = deg2rad(encoder_data.mechanical_angle);
+    // const float K_G = 0.08f;
+    // const float TH0 = MOTOR_LOW;
+    // float iq_grav = K_G * sinf(theta - TH0);
 
     // 计算最终目标Q轴电流
-    foc_ctrl.target_q = iq_fb + iq_grav;
+    foc_ctrl.target_q = iq_fb;
 }
 
 /**

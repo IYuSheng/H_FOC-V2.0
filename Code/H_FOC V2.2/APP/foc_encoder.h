@@ -59,7 +59,7 @@
 #define SPEED_CALC_INTERVAL    0.001f       // 速度计算间隔（1ms，单位：秒）
 #define SPEED_FILTER_K         0.2f        // 速度低通滤波系数（0~1，越小越平滑）
 #define DIRECTION_CW           1            //电机方向
-#define ENCODER_ZERO           -6.71f       //编码器零位（单位：度）
+#define ENCODER_ZERO           -5.75f       //编码器零位（单位：度）
 
 /* ================================= 数据类型定义 ================================= */
 // 编码器状态枚举
@@ -84,14 +84,14 @@ typedef struct {
 } encoder_data_t;
 
 typedef struct {
-    float theta_hat;   // 内部角度估计(单位: deg)，仅用于观测器
-    float omega_hat;   // 估计速度(单位: deg/s)，给控制用
-    float alpha_hat;   // 估计角加速度，单位: deg/s^2
+    float theta_hat;       // estimated position, deg
+    float omega_hat;       // estimated velocity, deg/s
+    float alpha_hat;       // estimated acceleration, deg/s^2
     uint8_t inited;
-} pos_luenberger_t;
+} pos_obs_t;
 
 extern encoder_data_t encoder_data;
-extern pos_luenberger_t g_pos_obs;
+extern pos_obs_t g_pos_obs;
 
 /* ================================= 函数声明 ================================= */
 /**

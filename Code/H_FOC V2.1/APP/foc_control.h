@@ -20,8 +20,8 @@
 #include <math.h>
 
 #define FOC_SPEED_CONTROL_ENABLE            0   // 速度环使能
-#define FOC_POSITION_CONTROL_ENABLE         0   // 位置环使能
-#define FOC_MIT_CONTROL_ENABLE              1   // MIT控制使能
+#define FOC_POSITION_CONTROL_ENABLE         1   // 位置环使能
+#define FOC_MIT_CONTROL_ENABLE              0   // MIT控制使能
 #define FOC_PARAMETER_IDENTIFICATION_ENABLE 0   // 电机参数辨识使能
 #define FOC_COGGING_COMPENSATION_ENABLE     0   // 齿槽转矩补偿使能
 #define FLUX_OBSERVER_ENABLE                0   // 磁链观测器使能

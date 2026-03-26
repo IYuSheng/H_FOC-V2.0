@@ -23,7 +23,8 @@ void foc_debug(void)
     // foc_ctrl.Te = 1.5f * MOTOR_POLE_PAIRS * (MOTOR_FLUX_LINKAGE * foc_ctrl.abc_dq.current_q);
     // debug_log("%.4f", foc_ctrl.Te);
 
-    debug_log("%.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, encoder_data.mechanical_accsd);
+    // debug_log("%.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.electrical_speed, encoder_data.mechanical_accsd);
+    debug_log("%.4f, %.4f, %.4f", encoder_data.mechanical_angle, encoder_data.mechanical_speed, foc_ctrl.target_q);
     
     #if FOC_TEST_ENABLE // 扫频测试
     // q轴正弦波扫频输出
@@ -48,12 +49,12 @@ void foc_debug(void)
  */
 void foc_start_init(void)
 {   
-    foc_ctrl.target_speed = 500.0f;   // 设置目标速度(°/s)
-    foc_ctrl.out_q = 0.2f; // 设置q轴输出电压(开环用)
+    foc_ctrl.target_speed = 5.0f;   // 设置目标速度(°/s)
+    foc_ctrl.out_q = 0.0f; // 设置q轴输出电压(开环用)
     foc_ctrl.out_d = 0.0f; // 设置d轴输出电压(开环用)
     foc_ctrl.target_q = 0.0f;  // 设置目标Q轴电流
     foc_ctrl.target_d = 0.0f;  // 设置目标D轴电流
-    foc_ctrl.target_position = -53.0f;  // 设置目标位置
+    foc_ctrl.target_position = 65.0f;  // 设置目标位置
     // 初始化电流环PI参数
     foc_current_pi_init(I_D_P_GAIN, I_Q_P_GAIN, I_I_GAIN, I_I_LIMIT);
     // 初始化速度环PI参数
@@ -80,7 +81,7 @@ void foc_start_init(void)
     // ei_shaper_init(2.84f, 0.05f, POSITION_LOOP_DT);
 
     // 轨迹规划 (速度 加速度 加加速度 Ts)
-    s_curve_planner_init(&g_pos_planner, 5000.0f, 2000.0f, 5000.0f, POSITION_LOOP_DT);
+    s_curve_planner_init(&g_pos_planner, 5000.0f, 1000.0f, 1000.0f, POSITION_LOOP_DT);
     #endif
     
     #if FLUX_OBSERVER_ENABLE
@@ -95,7 +96,7 @@ void foc_start_init(void)
     
     #if 0   // 电机零位校准时启用
     LL_TIM_EnableIT_CC4(TIM8);
-    foc_ctrl.out_q = 0.5f; // 初始q轴电压
+    foc_ctrl.out_q = 2.5f; // 初始q轴电压
     //  将电角度设为90度(直接当作驱动电机角度)锁定电机至零位
     float sin_theta, cos_theta;
     CORDIC_SinCos_Deg(90.0f, &sin_theta, &cos_theta);
@@ -118,11 +119,6 @@ void foc_start_init(void)
  */
 void foc_control(void)
 {
-    if (g_canfd_joint_cmd.enabled != 0U) {
-        foc_mit_control();
-        return;
-    }
-
     #if FOC_RESONANCE_ENABLE
     static uint16_t count = 0;
     float iq_fb;
@@ -293,6 +289,10 @@ static inline void foc_open_loop_control(float target_speed, float target_outq)
 
     // 将alpha-beta坐标系电流转换为DQ坐标系电流
     park_transform(&alpha_beta, &foc_ctrl, sin_theta, cos_theta);
+
+    // 电流环PID计算
+    foc_ctrl.out_d = foc_id_pid_calculate(foc_ctrl.target_d, foc_ctrl.abc_dq.current_d);
+    foc_ctrl.out_q = foc_iq_pid_calculate(foc_ctrl.target_q, foc_ctrl.abc_dq.current_q);
 
     /************************** 3. 反Park变换（DQ→αβ） **************************/
     inv_park_transform_f32(&foc_ctrl, &alpha_beta, sin_theta, cos_theta);
@@ -508,7 +508,7 @@ static inline void foc_position_control(float target_position)
 
     // ===== 重力补偿前馈 =====
     float theta = deg2rad(encoder_data.mechanical_angle);
-    const float K_G = 3.1f;
+    const float K_G = 3.0f;
     const float TH0 = MOTOR_LOW;
     float iq_grav = K_G * sinf(theta - TH0);
 
